@@ -1,5 +1,5 @@
 import {createContext, useContext, useEffect, useState, FC, useCallback} from 'react';
-import deepEqual from 'fast-deep-equal';
+import equal from 'fast-deep-equal';
 
 import {Flag, Flags, FlagsProviderProps, SecretMenuStyle, ServerResponse} from './types';
 import SecretMenu from "./keycodes.tsx";
@@ -49,7 +49,7 @@ export const FlagsProvider: FC<FlagsProviderProps> = ({ options, children }) => 
         ...acc,
         [flag.feature.name]: flag
       }), {});
-      if (!deepEqual(flags, newFlags)) {
+      if (!equal(flags, newFlags)) {
         setFlags(prevFlags => {
           const updatedFlags = {...newFlags};
           Object.keys(prevFlags).forEach(flagKey => {
