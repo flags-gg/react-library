@@ -2,9 +2,8 @@ import {createContext, useContext, useEffect, useState, FC, useCallback} from 'r
 import equal from 'fast-deep-equal';
 
 import {Flag, Flags, FlagsProviderProps, SecretMenuStyle, ServerResponse} from './types';
-import SecretMenu from "./keycodes.tsx";
+import SecretMenu from "./secretmenu";
 
-// Creating the context
 const defaultFlags: Flags = {};
 const FlagsContext = createContext<Flags>(defaultFlags);
 
@@ -98,7 +97,6 @@ export const FlagsProvider: FC<FlagsProviderProps> = ({ options, children }) => 
   );
 };
 
-// Hook to use flags
 export const useFlags = () => {
   const context = useContext(FlagsContext);
   if (context === undefined) {
