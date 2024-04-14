@@ -1,0 +1,31 @@
+{
+  "name": "react-library",
+  "main": "index.tsx",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/flags-gg/react-library.git"
+  },
+  "bugs": {
+    "url": "https://github.com/flags-gg/react-library/issues"
+  },
+  "homepage": "https://flags.gg",
+  "keywords": [
+    "flags",
+    "flags.gg",
+    "flags-gg"
+  ],
+  "devDependencies": {
+    "@types/react": "^18.0.0",
+    "@types/react-dom": "^18.0.0",
+    "typescript": "^5.4.3"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "fast-deep-equal": "^3.1.3"
+  },
+  "types": "index.d.ts"
+}

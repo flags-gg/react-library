@@ -1,0 +1,52 @@
+name: Deploy
+
+on:
+  release:
+    types:
+      - published
+
+jobs:
+  npm:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - name: Extract tag
+        id: extract_tag
+        run: echo "::set-output name=tag::${GITHUB_REF/refs\/tags\//}"
+      - uses: reedyuk/npm-version@1.2.2
+        with:
+          git-tag-version: false
+          version: ${{ steps.extract_tag.outputs.tag }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          registry-url: 'https://registry.npmjs.org'
+      - name: NPM
+        run: npm publish --no-git-checks
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+  chewedfeed:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - name: Extract tag
+        id: extract_tag
+        run: echo "::set-output name=tag::${GITHUB_REF/refs\/tags\//}"
+      - uses: reedyuk/npm-version@1.2.2
+        with:
+          git-tag-version: false
+          version: ${{ steps.extract_tag.outputs.tag }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          registry-url: 'https://npm.chewedfeed.com'
+      - name: Chewed-K8s
+        run: npm publish --registry https://npm.chewedfeed.com --no-git-checks
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.CF_NPM_TOKEN }}
