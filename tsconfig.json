@@ -5,6 +5,7 @@
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "module": "ESNext",
     "skipLibCheck": true,
+    "esModuleInterop": true,
 
     /* Bundler mode */
     "moduleResolution": "bundler",
@@ -22,5 +23,4 @@
   },
   "include": ["src"],
   "exclude": ["node_modules", "dist", "build", "public"],
-  "references": [{ "path": "./tsconfig.node.json" }]
 }

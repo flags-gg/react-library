@@ -1,5 +1,5 @@
 import {createContext, useContext, useEffect, useState, FC, useCallback} from 'react';
-import { equal } from 'fast-deep-equal';
+import equal from 'fast-deep-equal';
 
 import {Flag, Flags, FlagsProviderProps, SecretMenuStyle, ServerResponse} from './types';
 import SecretMenu from "./keycodes.tsx";
