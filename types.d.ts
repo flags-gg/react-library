@@ -11,8 +11,6 @@ interface SecretMenuResponse {
 
 export interface Flag {
   enabled?: boolean;
-  secretMenu: string[];
-  featureValue?: string;
   feature: {
     name: string;
     id: string
