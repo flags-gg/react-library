@@ -8,10 +8,11 @@ import {
   SetStateAction,
   Dispatch
 } from 'react';
+// @ts-ignore
 import equal from 'fast-deep-equal';
 
 import {Flag, Flags, FlagsProviderProps, SecretMenuStyle, ServerResponse} from './types';
-import SecretMenu from "./secretmenu";
+import {SecretMenu} from "./secretmenu";
 
 const defaultFlags: Flags = {};
 const FlagsContext = createContext<Flags>(defaultFlags);
@@ -60,13 +61,15 @@ export const FlagsProvider: FC<FlagsProviderProps> = ({ options, children }) => 
       }), {});
       if (!equal(flags, newFlags)) {
         setFlags(prevFlags => {
-          const updatedFlags = {...newFlags};
-          Object.keys(prevFlags).forEach(flagKey => {
-            if (localOverrides[flagKey] && localOverrides[flagKey].hasOwnProperty!('enabled')) {
-              updatedFlags[flagKey].enabled = localOverrides[flagKey].enabled;
+          const updatedFlags = {...prevFlags};
+          let shouldUpdate = false;
+          Object.keys(newFlags).forEach(flagKey => {
+            if (newFlags[flagKey].enabled !== (prevFlags[flagKey]?.enabled)) {
+              shouldUpdate = true;
+              updatedFlags[flagKey] = newFlags[flagKey];
             }
           });
-          return updatedFlags;
+          return shouldUpdate ? updatedFlags : prevFlags;
         });
       }
     } catch (error) {
