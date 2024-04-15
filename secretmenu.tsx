@@ -2,17 +2,50 @@ import {CSSProperties, FC, useEffect, useState} from 'react';
 import {SecretMenuProps} from "./types";
 import {useFlags} from "./index";
 
-function formatFeatureName(name: string): string {
+const styles: {[key: string]: CSSProperties } = {
+  "closeButton": {
+    position: "absolute",
+    top: 0,
+    right: 0,
+    color: "black",
+    cursor: "pointer",
+    background: "transparent",
+  },
+  "container": {
+    position: "fixed",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
+    zIndex: 9001,
+    backgroundColor: "white",
+    color: "black",
+    border: "1px solid black",
+    borderRadius: "5px",
+    padding: "1rem",
+  },
+  "button": {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: "0.5rem",
+    background: "lightgray",
+    borderRadius: "5px",
+    margin: "0.5rem 0",
+  }
+}
+
+export const formatFeatureName = (name: string): string => {
   return name
-    .replace(/([A-Z0-9]+)/g, ' $1')
+    .replace(/([a-z])([A-Z0-9])/g, '$1 $2')
+    .replace(/([0-9])([A-Z])/g, '$1 $2')
+    .replace(/([A-Z]+)([A-Z][a-z])/g, '$1 $2')
     .trim()
     .split(' ')
     .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
     .join(' ');
 }
 
-
-function parseStyle(styleString: string): CSSProperties {
+export const parseStyle = (styleString: string): CSSProperties => {
   styleString = styleString.replace(/",/g, '";');
 
   const styleObject: CSSProperties = {};
@@ -31,8 +64,6 @@ function parseStyle(styleString: string): CSSProperties {
     const value = property.substring(colonIndex + 1).trim().replace(/"/g, '');
 
     if (key && value) {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-expect-error
       styleObject[key] = value;
     }
   });
@@ -40,7 +71,7 @@ function parseStyle(styleString: string): CSSProperties {
   return styleObject;
 }
 
-const SecretMenu: FC<SecretMenuProps> = ({secretMenu, toggleFlag, flags, secretMenuStyles }) => {
+export const SecretMenu: FC<SecretMenuProps> = ({secretMenu, toggleFlag, flags, secretMenuStyles }) => {
   const [showMenu, setShowMenu] = useState(false);
   const [keySequence, setKeySequence] = useState<string[]>([]);
   const {is} = useFlags();
@@ -53,37 +84,6 @@ const SecretMenu: FC<SecretMenuProps> = ({secretMenu, toggleFlag, flags, secretM
     toggleFlag(key);
   }
 
-  const styles: {[key: string]: CSSProperties } = {
-    "closeButton": {
-      position: "absolute",
-      top: 0,
-      right: 0,
-      color: "black",
-      cursor: "pointer",
-      background: "transparent",
-    },
-    "container": {
-      position: "fixed",
-      top: "50%",
-      left: "50%",
-      transform: "translate(-50%, -50%)",
-      zIndex: 9001,
-      backgroundColor: "white",
-      color: "black",
-      border: "1px solid black",
-      borderRadius: "5px",
-      padding: "1rem",
-    },
-    "button": {
-      display: "flex",
-      justifyContent: "space-between",
-      alignItems: "center",
-      padding: "0.5rem",
-      background: "lightgray",
-      borderRadius: "5px",
-      margin: "0.5rem 0",
-    }
-  }
   if (secretMenuStyles) {
     secretMenuStyles.forEach(style => {
       styles[style.name] = parseStyle(style.value);
@@ -130,5 +130,3 @@ const SecretMenu: FC<SecretMenuProps> = ({secretMenu, toggleFlag, flags, secretM
     </div>
   ) : null;
 };
-
-export default SecretMenu;

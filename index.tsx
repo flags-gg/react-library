@@ -8,10 +8,11 @@ import {
   SetStateAction,
   Dispatch
 } from 'react';
+// @ts-ignore
 import equal from 'fast-deep-equal';
 
 import {Flag, Flags, FlagsProviderProps, SecretMenuStyle, ServerResponse} from './types';
-import SecretMenu from "./secretmenu";
+import {SecretMenu} from "./secretmenu";
 
 const defaultFlags: Flags = {};
 const FlagsContext = createContext<Flags>(defaultFlags);
@@ -60,13 +61,15 @@ export const FlagsProvider: FC<FlagsProviderProps> = ({ options, children }) => 
       }), {});
       if (!equal(flags, newFlags)) {
         setFlags(prevFlags => {
-          const updatedFlags = {...newFlags};
-          Object.keys(prevFlags).forEach(flagKey => {
-            if (localOverrides[flagKey] && localOverrides[flagKey].hasOwnProperty!('enabled')) {
-              updatedFlags[flagKey].enabled = localOverrides[flagKey].enabled;
+          const updatedFlags = {...prevFlags};
+          let shouldUpdate = false;
+          Object.keys(newFlags).forEach(flagKey => {
+            if (newFlags[flagKey].enabled !== (prevFlags[flagKey]?.enabled)) {
+              shouldUpdate = true;
+              updatedFlags[flagKey] = newFlags[flagKey];
             }
           });
-          return updatedFlags;
+          return shouldUpdate ? updatedFlags : prevFlags;
         });
       }
     } catch (error) {
@@ -114,8 +117,12 @@ export const useFlags = () => {
   const setFlags = useContext(SetFlagsContext);
 
   if (flags === undefined) {
-    throw new Error('useFlags must be used within a FlagsProvider');
+    throw new Error('useFlags must be used within a FlagsContext.Provider');
   }
+  if (setFlags === undefined) {
+    throw new Error('useFlags must be used within a SetFlagsContext.Provider');
+  }
+
   return {
     is: (flag: string) => ({
       enabled: () => flags[flag]?.enabled ?? false,
@@ -124,7 +131,13 @@ export const useFlags = () => {
           if (setFlags) {
             setFlags(prevFlags => ({
               ...prevFlags,
-              [flag]: {feature: {name: flag}, enabled: defaultValue}
+              [flag]: {
+                feature: {
+                  name: flag,
+                  id: (999 + Math.random()).toString(36).substring(2),
+                },
+                enabled: defaultValue,
+              }
             }));
           }
         }
