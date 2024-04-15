@@ -114,8 +114,12 @@ export const useFlags = () => {
   const setFlags = useContext(SetFlagsContext);
 
   if (flags === undefined) {
-    throw new Error('useFlags must be used within a FlagsProvider');
+    throw new Error('useFlags must be used within a FlagsContext.Provider');
   }
+  if (setFlags === undefined) {
+    throw new Error('useFlags must be used within a SetFlagsContext.Provider');
+  }
+
   return {
     is: (flag: string) => ({
       enabled: () => flags[flag]?.enabled ?? false,
@@ -124,7 +128,13 @@ export const useFlags = () => {
           if (setFlags) {
             setFlags(prevFlags => ({
               ...prevFlags,
-              [flag]: {feature: {name: flag}, enabled: defaultValue}
+              [flag]: {
+                feature: {
+                  name: flag,
+                  id: (999 + Math.random()).toString(36).substring(2),
+                },
+                enabled: defaultValue,
+              }
             }));
           }
         }
