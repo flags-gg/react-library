@@ -1,4 +1,4 @@
-import {formatFeatureName, parseStyle} from '../secretmenu'
+import {formatFeatureName} from '../secretmenu'
 
 describe('formatFeatureName', () => {
   it('should capitalize the first letter of each word and add a space before capital letters', () => {
