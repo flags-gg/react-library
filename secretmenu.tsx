@@ -1,5 +1,6 @@
 import {CSSProperties, FC, useEffect, useState} from 'react';
 import {SecretMenuProps} from "./types";
+import {useFlags} from "./index";
 
 function formatFeatureName(name: string): string {
   return name
@@ -42,23 +43,31 @@ function parseStyle(styleString: string): CSSProperties {
 const SecretMenu: FC<SecretMenuProps> = ({secretMenu, toggleFlag, flags, secretMenuStyles }) => {
   const [showMenu, setShowMenu] = useState(false);
   const [keySequence, setKeySequence] = useState<string[]>([]);
+  const {is} = useFlags();
+
   if (typeof secretMenu === 'undefined') { secretMenu = []; }
+
+  const handleToggle = (key: string) => {
+    const flag = is(key);
+    flag.initialize()
+    toggleFlag(key);
+  }
 
   const styles: {[key: string]: CSSProperties } = {
     "closeButton": {
       position: "absolute",
       top: 0,
-      right: -15,
+      right: 0,
       color: "black",
       cursor: "pointer",
-      width: "5px",
+      background: "transparent",
     },
     "container": {
       position: "fixed",
       top: "50%",
       left: "50%",
       transform: "translate(-50%, -50%)",
-      zIndex: 1000,
+      zIndex: 9001,
       backgroundColor: "white",
       color: "black",
       border: "1px solid black",
@@ -112,7 +121,7 @@ const SecretMenu: FC<SecretMenuProps> = ({secretMenu, toggleFlag, flags, secretM
           <span>{formatFeatureName(key)}</span>
           <button
             key={`sm_button_${key}`}
-            onClick={() => toggleFlag(value.feature.name)}
+            onClick={() => handleToggle(value.feature.name)}
           >
             {value.enabled ? 'Enabled' : 'Disabled'}
           </button>

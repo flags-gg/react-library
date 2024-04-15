@@ -1,4 +1,13 @@
-import {createContext, useContext, useEffect, useState, FC, useCallback} from 'react';
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  FC,
+  useCallback,
+  SetStateAction,
+  Dispatch
+} from 'react';
 import equal from 'fast-deep-equal';
 
 import {Flag, Flags, FlagsProviderProps, SecretMenuStyle, ServerResponse} from './types';
@@ -6,6 +15,7 @@ import SecretMenu from "./secretmenu";
 
 const defaultFlags: Flags = {};
 const FlagsContext = createContext<Flags>(defaultFlags);
+const SetFlagsContext = createContext<Dispatch<SetStateAction<Flags>> | undefined>(undefined);
 
 const logIt = (...message: unknown[]) => {
   console.log.apply(console, [
@@ -90,21 +100,35 @@ export const FlagsProvider: FC<FlagsProviderProps> = ({ options, children }) => 
   }
 
   return (
-    <FlagsContext.Provider value={flags}>
-      {children}
-      {secretMenu && <SecretMenu secretMenu={secretMenu} flags={flags} toggleFlag={toggleFlag} secretMenuStyles={secretMenuStyles} />}
-    </FlagsContext.Provider>
+    <SetFlagsContext.Provider value={setFlags}>
+      <FlagsContext.Provider value={flags}>
+        {children}
+        {secretMenu && <SecretMenu secretMenu={secretMenu} flags={flags} toggleFlag={toggleFlag} secretMenuStyles={secretMenuStyles} />}
+      </FlagsContext.Provider>
+    </SetFlagsContext.Provider>
   );
 };
 
 export const useFlags = () => {
-  const context = useContext(FlagsContext);
-  if (context === undefined) {
+  const flags = useContext(FlagsContext);
+  const setFlags = useContext(SetFlagsContext);
+
+  if (flags === undefined) {
     throw new Error('useFlags must be used within a FlagsProvider');
   }
   return {
-    is: (featureName: string) => ({
-      enabled: () => context[featureName] && context[featureName].enabled,
-    }),
+    is: (flag: string) => ({
+      enabled: () => flags[flag]?.enabled ?? false,
+      initialize: (defaultValue = false) => {
+        if (!flags.hasOwnProperty(flag)) {
+          if (setFlags) {
+            setFlags(prevFlags => ({
+              ...prevFlags,
+              [flag]: {feature: {name: flag}, enabled: defaultValue}
+            }));
+          }
+        }
+      }
+    })
   };
 };
