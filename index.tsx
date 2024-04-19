@@ -57,7 +57,7 @@ export const FlagsProvider: FC<FlagsProviderProps> = ({ options, children }) => 
       setSecretMenuStyles(data.secretMenu.styles);
       const newFlags = data.flags.reduce((acc: Flags, flag: Flag) => ({
         ...acc,
-        [flag.feature.name]: flag
+        [flag.details.name]: flag
       }), {});
       if (!equal(flags, newFlags)) {
         setFlags(prevFlags => {
@@ -132,7 +132,7 @@ export const useFlags = () => {
             setFlags(prevFlags => ({
               ...prevFlags,
               [flag]: {
-                feature: {
+                details: {
                   name: flag,
                   id: (999 + Math.random()).toString(36).substring(2),
                 },
