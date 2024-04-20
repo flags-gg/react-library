@@ -27,7 +27,7 @@ const logIt = (...message: unknown[]) => {
 }
 
 export const FlagsProvider: FC<FlagsProviderProps> = ({ options, children }) => {
-  const { flagsURL = "https://api.flags.gg/v1/flags", companyId, agentId, enableLogs } = options;
+  const { flagsURL = "https://api.flags.gg/v1/flags", companyId, agentId, environmentId, enableLogs } = options;
 
   const [flags, setFlags] = useState<Flags>({});
   const [intervalAllowed, setIntervalAllowed] = useState(60);
@@ -43,6 +43,9 @@ export const FlagsProvider: FC<FlagsProviderProps> = ({ options, children }) => 
     }
     if (agentId) {
       headers.append('x-agent-id', agentId);
+    }
+    if (environmentId) {
+      headers.append('x-environment-id', environmentId);
     }
 
     try {
