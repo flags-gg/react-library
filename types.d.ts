@@ -1,5 +1,3 @@
-import React from 'react';
-
 export interface SecretMenuStyle {
   name: string;
   value: string;
@@ -21,11 +19,12 @@ export interface Flags {
 }
 
 export interface FlagsProviderOptions {
-  flagsURL?: string;
   companyId?: string;
   agentId?: string;
-  enableLogs?: boolean;
+  environmentId?: string;
 
+  flagsURL?: string;
+  enableLogs?: boolean;
 }
 
 export interface FlagsProviderProps {
