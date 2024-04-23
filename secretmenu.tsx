@@ -1,3 +1,5 @@
+import React from "react";
+
 import { CSSProperties, FC, useEffect, useState } from "react";
 import { SecretMenuProps } from "./types";
 import { useFlags } from "./index";
@@ -122,29 +124,31 @@ export const SecretMenu: FC<SecretMenuProps> = ({
     }
   }, [keySequence, secretMenu]);
 
-  return showMenu ? (
-    <div style={styles.container}>
-      <button
-        style={styles.closeButton}
-        onClick={() => {
-          setShowMenu(false);
-          setKeySequence([]);
-        }}
-      >
-        X
-      </button>
-      <h1>Secret Menu</h1>
-      {Object.entries(flags).map(([key, value]) => (
-        <div key={`sm_item_${key}`} style={styles.button}>
-          <span>{formatFeatureName(key)}</span>
-          <button
-            key={`sm_button_${key}`}
-            onClick={() => handleToggle(value.details.name)}
-          >
-            {value.enabled ? "Enabled" : "Disabled"}
-          </button>
-        </div>
-      ))}
-    </div>
-  ) : null;
+  return (
+    showMenu && (
+      <div style={styles.container}>
+        <button
+          style={styles.closeButton}
+          onClick={() => {
+            setShowMenu(false);
+            setKeySequence([]);
+          }}
+        >
+          X
+        </button>
+        <h1>Secret Menu</h1>
+        {Object.entries(flags).map(([key, value]) => (
+          <div key={`sm_item_${key}`} style={styles.button}>
+            <span>{formatFeatureName(key)}</span>
+            <button
+              key={`sm_button_${key}`}
+              onClick={() => handleToggle(value.details.name)}
+            >
+              {value.enabled ? "Enabled" : "Disabled"}
+            </button>
+          </div>
+        ))}
+      </div>
+    )
+  );
 };
