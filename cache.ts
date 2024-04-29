@@ -1,8 +1,8 @@
-import {CacheEntry} from './types.d'
+import {CacheEntry} from './types'
 
 class Cache {
   private cache: Record<string, CacheEntry>;
-  
+
   constructor() {
     this.cache = {}
   }
