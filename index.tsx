@@ -19,6 +19,7 @@ import {
   ServerResponse,
 } from "./types";
 import { SecretMenu } from "./secretmenu";
+import {Cache} from "./cache";
 
 const defaultFlags: Flags = {};
 const FlagsContext = createContext<Flags>(defaultFlags);
@@ -50,11 +51,19 @@ export const FlagsProvider: FC<FlagsProviderProps> = ({
   const [intervalAllowed, setIntervalAllowed] = useState(60);
   const [secretMenu, setSecretMenu] = useState<string[]>([]);
   const [localOverrides, setLocalOverrides] = useState<Flags>({});
-  const [secretMenuStyles, setSecretMenuStyles] = useState<SecretMenuStyle[]>(
-    [],
-  );
+  const [secretMenuStyles, setSecretMenuStyles] = useState<SecretMenuStyle[]>([]);
+  const cache = new Cache();
 
   const fetchFlags = useCallback(async () => {
+    const cacheKey = `flags_${companyId}_${agentId}_${environmentId}`;
+    const cachedFlags = cache.getCacheEntry(cacheKey);
+    if (cachedFlags) {
+      if (!equal(flags, cachedFlags)) {
+        setFlags(cachedFlags);
+      }
+      return;
+    }
+
     const headers = new Headers();
     headers.append("Content-Type", "application/json");
     if (companyId) {
@@ -87,6 +96,7 @@ export const FlagsProvider: FC<FlagsProviderProps> = ({
         {},
       );
       if (!equal(flags, newFlags)) {
+        cache.setCacheEntry(cacheKey, newFlags, (intervalAllowed * 2000));
         setFlags((prevFlags) => {
           const updatedFlags = { ...prevFlags };
           let shouldUpdate = false;
@@ -102,11 +112,11 @@ export const FlagsProvider: FC<FlagsProviderProps> = ({
     } catch (error) {
       console.error("Error fetching flags:", error);
     }
-  }, [flagsURL, intervalAllowed, agentId, companyId]);
+  }, [flagsURL, intervalAllowed, agentId, companyId, environmentId, flags, cache]);
 
   useEffect(() => {
     fetchFlags().catch(console.error);
-    const interval = setInterval(fetchFlags, intervalAllowed * 1000);
+    const interval = setInterval(fetchFlags, (intervalAllowed * 1000));
     return () => clearInterval(interval);
   }, [fetchFlags, intervalAllowed]);
 
