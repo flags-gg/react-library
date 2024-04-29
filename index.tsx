@@ -112,7 +112,7 @@ export const FlagsProvider: FC<FlagsProviderProps> = ({
     } catch (error) {
       console.error("Error fetching flags:", error);
     }
-  }, [flagsURL, intervalAllowed, agentId, companyId, environmentId, flags, cache]);
+  }, [flagsURL, intervalAllowed, agentId, companyId, environmentId]);
 
   useEffect(() => {
     fetchFlags().catch(console.error);
