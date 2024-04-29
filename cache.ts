@@ -1,7 +1,7 @@
 import {CacheEntry} from './types'
 
 class Cache {
-  readonly private cache: Record<string, CacheEntry>;
+  private readonly cache: Record<string, CacheEntry>;
 
   constructor() {
     this.cache = {}
