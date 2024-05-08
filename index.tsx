@@ -88,13 +88,13 @@ export const FlagsProvider: FC<FlagsProviderProps> = ({
       setIntervalAllowed(data.intervalAllowed);
       setSecretMenu(data.secretMenu.sequence);
       setSecretMenuStyles(data.secretMenu.styles);
-      const newFlags = data.flags.reduce(
+      const newFlags = data.flags ? data.flags.reduce(
         (acc: Flags, flag: Flag) => ({
           ...acc,
           [flag.details.name]: flag,
         }),
         {},
-      );
+      ) : {};
       if (!equal(flags, newFlags)) {
         cache.setCacheEntry(cacheKey, newFlags, (intervalAllowed * 2000));
         setFlags((prevFlags) => {
@@ -145,7 +145,7 @@ export const FlagsProvider: FC<FlagsProviderProps> = ({
     <SetFlagsContext.Provider value={setFlags}>
       <FlagsContext.Provider value={flags}>
         {children}
-        {secretMenu.length >= 1 && (
+        {secretMenu?.length >= 1 && (
           <SecretMenu
             secretMenu={secretMenu}
             flags={flags}

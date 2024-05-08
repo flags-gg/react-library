@@ -35,7 +35,7 @@ export interface FlagsProviderProps {
 export interface ServerResponse {
   intervalAllowed: number;
   secretMenu: SecretMenuResponse;
-  flags: Flag[];
+  flags?: Flag[];
 }
 
 export interface SecretMenuProps {
