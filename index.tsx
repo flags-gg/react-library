@@ -9,7 +9,7 @@ import React, {
   Dispatch,
 } from "react";
 // @ts-ignore
-import equal from "fast-deep-equal";
+import {deepEqual as equal} from "fast-equals";
 
 import {
   Flag,
@@ -57,24 +57,16 @@ export const FlagsProvider: FC<FlagsProviderProps> = ({
   const fetchFlags = useCallback(async () => {
     const cacheKey = `flags_${companyId}_${agentId}_${environmentId}`;
     const cachedFlags = cache.getCacheEntry(cacheKey);
-    if (cachedFlags) {
-      if (!equal(flags, cachedFlags)) {
-        setFlags(cachedFlags);
-      }
+    if (cachedFlags && equal(flags, cachedFlags)) {
       return;
     }
 
-    const headers = new Headers();
-    headers.append("Content-Type", "application/json");
-    if (companyId) {
-      headers.append("x-company-id", companyId);
-    }
-    if (agentId) {
-      headers.append("x-agent-id", agentId);
-    }
-    if (environmentId) {
-      headers.append("x-environment-id", environmentId);
-    }
+    const headers = new Headers({
+      "Content-Type": "application/json",
+      ...(companyId && { "x-company-id": companyId }),
+      ...(agentId && { "x-agent-id": agentId }),
+      ...(environmentId && { "x-environment-id": environmentId }),
+    });
 
     try {
       const response = await fetch(flagsURL, {
@@ -88,13 +80,10 @@ export const FlagsProvider: FC<FlagsProviderProps> = ({
       setIntervalAllowed(data.intervalAllowed);
       setSecretMenu(data.secretMenu.sequence);
       setSecretMenuStyles(data.secretMenu.styles);
-      const newFlags = data.flags ? data.flags.reduce(
-        (acc: Flags, flag: Flag) => ({
-          ...acc,
-          [flag.details.name]: flag,
-        }),
-        {},
-      ) : {};
+      const newFlags = data.flags ? data.flags.reduce((acc: Flags, flag: Flag) => ({
+        ...acc,
+        [flag.details.name]: flag,
+      }), {}) : {};
       if (!equal(flags, newFlags)) {
         cache.setCacheEntry(cacheKey, newFlags, (intervalAllowed * 2000));
         setFlags((prevFlags) => {
@@ -120,26 +109,30 @@ export const FlagsProvider: FC<FlagsProviderProps> = ({
     return () => clearInterval(interval);
   }, [fetchFlags, intervalAllowed]);
 
-  const toggleFlag = (flagName: string) => {
-    if (enableLogs) {
-      logIt("Toggling flag:", flagName);
-    }
-
-    setFlags((prevFlags) => ({
-      ...prevFlags,
-      [flagName]: {
-        ...prevFlags[flagName],
-        enabled: !prevFlags[flagName].enabled,
-      },
-    }));
-    setLocalOverrides((prevLocalOverrides) => ({
-      ...prevLocalOverrides,
-      [flagName]: {
-        ...prevLocalOverrides[flagName],
-        enabled: !prevLocalOverrides[flagName]?.enabled,
-      },
-    }));
-  };
+  const toggleFlag = useCallback((flagName: string) => {
+    setFlags(prevFlags => {
+      const currentFlag = prevFlags[flagName];
+      const updatedFlag = {
+        ...currentFlag,
+        enabled: !currentFlag.enabled,
+      };
+      return {
+        ...prevFlags,
+        [flagName]: updatedFlag,
+      };
+    });
+    setLocalOverrides(prevOverrides => {
+      const currentOverride = prevOverrides[flagName];
+      const updatedOverride = {
+        ...currentOverride,
+        enabled: !(currentOverride?.enabled ?? false),
+      };
+      return {
+        ...prevOverrides,
+        [flagName]: updatedOverride,
+      };
+    });
+  }, []);
 
   return (
     <SetFlagsContext.Provider value={setFlags}>
@@ -162,11 +155,8 @@ export const useFlags = () => {
   const flags = useContext(FlagsContext);
   const setFlags = useContext(SetFlagsContext);
 
-  if (flags === undefined) {
-    throw new Error("useFlags must be used within a FlagsContext.Provider");
-  }
-  if (setFlags === undefined) {
-    throw new Error("useFlags must be used within a SetFlagsContext.Provider");
+  if (!flags || !setFlags) {
+    throw new Error("useFlags must be inside a FlagsContext.Provider")
   }
 
   return {
@@ -174,18 +164,16 @@ export const useFlags = () => {
       enabled: () => flags[flag]?.enabled ?? false,
       initialize: (defaultValue = false) => {
         if (!flags.hasOwnProperty(flag)) {
-          if (setFlags) {
-            setFlags((prevFlags) => ({
-              ...prevFlags,
-              [flag]: {
-                details: {
-                  name: flag,
-                  id: (999 + Math.random()).toString(36).substring(2),
-                },
-                enabled: defaultValue,
+          setFlags((prevFlags) => ({
+            ...prevFlags,
+            [flag]: {
+              details: {
+                name: flag,
+                id: (999 + Math.random()).toString(36).substring(2),
               },
-            }));
-          }
+              enabled: defaultValue,
+            },
+          }));
         }
       },
     }),

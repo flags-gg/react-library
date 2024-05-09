@@ -1,0 +1,90 @@
+import React from 'react';
+import { render, fireEvent, waitFor, renderHook } from '@testing-library/react';
+import { FlagsProvider, useFlags } from '../index.tsx';
+import { act } from 'react-dom/test-utils';
+import {deepEqual} from "fast-equals";
+
+global.fetch = jest.fn(() =>
+  Promise.resolve({
+    json: () => Promise.resolve({
+      intervalAllowed: 60,
+      secretMenu: { sequence: [], styles: [] },
+      flags: [{ details: { name: 'feature1' }, enabled: true }],
+    }),
+  })
+);
+
+// Helper component to test useFlags
+const TestComponent = () => {
+  const { is, toggleFlag } = useFlags();
+  return (
+    <>
+      <p>{is('feature1').enabled() ? 'Enabled' : 'Disabled'}</p>
+      <button onClick={() => toggleFlag('feature1')}>Toggle Feature</button>
+    </>
+  );
+};
+
+// Additional mock adjustments for error scenarios
+beforeEach(() => {
+  global.fetch = jest.fn();
+});
+
+global.fetch.mockImplementationOnce(() => Promise.reject(new Error('Network error')));
+
+describe('FlagsProvider', () => {
+  beforeEach(() => {
+    jest.spyOn(global, 'fetch');
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks(); // Restore original functions and clear mocks
+  });
+
+  it('logs error when fetch fails', async () => {
+    global.fetch.mockRejectedValueOnce(new Error('Network error')); // Fail only on the first call
+
+    const consoleSpy = jest.spyOn(console, 'error');
+    const { unmount } = render(
+      <FlagsProvider options={{ flagsURL: 'https://api.flags.gg/v1/flags' }}>
+        <TestComponent />
+      </FlagsProvider>
+    );
+
+    await waitFor(() => expect(consoleSpy).toHaveBeenCalledWith("Error fetching flags:", expect.any(Error)));
+
+    // Clean up to check if interval is cleared
+    unmount();
+    expect(clearInterval).toHaveBeenCalled();
+  });
+
+  it('does not update flags if fetch fails and then succeeds on subsequent attempts', async () => {
+    global.fetch.mockRejectedValueOnce(new Error('Network error')); // First call fails
+    global.fetch.mockResolvedValueOnce({ // Second call succeeds
+      json: () => Promise.resolve({
+        intervalAllowed: 60,
+        secretMenu: { sequence: [], styles: [] },
+        flags: [{ details: { name: 'feature1' }, enabled: true }]
+      })
+    });
+
+    const { findByText, rerender } = render(
+      <FlagsProvider options={{ flagsURL: 'https://api.flags.gg/v1/flags' }}>
+        <TestComponent />
+      </FlagsProvider>
+    );
+
+    // Check for default state since first fetch fails
+    await findByText('Disabled');
+
+    // Rerender to trigger the next fetch attempt
+    rerender(
+      <FlagsProvider options={{ flagsURL: 'https://api.flags.gg/v1/flags' }}>
+        <TestComponent />
+      </FlagsProvider>
+    );
+
+    // Check for updated state after successful fetch
+    await findByText('Enabled');
+  });
+});
