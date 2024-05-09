@@ -28,7 +28,7 @@ export interface FlagsProviderOptions {
 }
 
 export interface FlagsProviderProps {
-  options: FlagsProviderOptions;
+  options?: FlagsProviderOptions;
   children: React.ReactNode;
 }
 

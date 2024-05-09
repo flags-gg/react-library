@@ -71,7 +71,7 @@ export const parseStyle = (styleString: string): CSSProperties => {
       .replace(/"/g, "");
 
     if (key && value) {
-      styleObject[key] = value;
+      (styleObject as React.CSSProperties & {[key: string]: any})[key] = value;
     }
   });
 
