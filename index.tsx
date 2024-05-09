@@ -22,6 +22,8 @@ import { SecretMenu } from "./secretmenu";
 import {Cache} from "./cache";
 
 const defaultFlags: Flags = {};
+
+// Contextx
 const FlagsContext = createContext<Flags>(defaultFlags);
 const SetFlagsContext = createContext<
   Dispatch<SetStateAction<Flags>> | undefined
@@ -36,7 +38,7 @@ const logIt = (...message: unknown[]) => {
 };
 
 export const FlagsProvider: FC<FlagsProviderProps> = ({
-  options,
+  options = {},
   children,
 }) => {
   const {
@@ -73,30 +75,44 @@ export const FlagsProvider: FC<FlagsProviderProps> = ({
         method: "GET",
         headers: headers,
       });
-      const data: ServerResponse = await response.json();
-      if (enableLogs) {
-        logIt("Flags fetched:", data);
+      if (!response.ok) {
+        const errorText = await response.text()
+        throw new Error(`Error fetching flags, status: ${response.status}: ${errorText}`)
       }
-      setIntervalAllowed(data.intervalAllowed);
-      setSecretMenu(data.secretMenu.sequence);
-      setSecretMenuStyles(data.secretMenu.styles);
-      const newFlags = data.flags ? data.flags.reduce((acc: Flags, flag: Flag) => ({
-        ...acc,
-        [flag.details.name]: flag,
-      }), {}) : {};
-      if (!equal(flags, newFlags)) {
-        cache.setCacheEntry(cacheKey, newFlags, (intervalAllowed * 2000));
-        setFlags((prevFlags) => {
-          const updatedFlags = { ...prevFlags };
-          let shouldUpdate = false;
-          Object.keys(newFlags).forEach((flagKey) => {
-            if (newFlags[flagKey].enabled !== prevFlags[flagKey]?.enabled) {
-              shouldUpdate = true;
-              updatedFlags[flagKey] = newFlags[flagKey];
-            }
+
+      if (response.headers.get('content-type')?.includes('application/json')) {
+        const data: ServerResponse = await response.json();
+        if (enableLogs) {
+          logIt("Flags fetched:", data);
+        }
+        setIntervalAllowed(data.intervalAllowed);
+        setSecretMenu(data.secretMenu.sequence);
+        setSecretMenuStyles(data.secretMenu.styles);
+        const newFlags = data.flags ? data.flags.reduce((acc: Flags, flag: Flag) => ({
+          ...acc,
+          [flag.details.name]: flag,
+        }), {}) : {};
+        if (!equal(flags, newFlags)) {
+          cache.setCacheEntry(cacheKey, newFlags, (intervalAllowed * 2000));
+          setFlags((prevFlags) => {
+            const updatedFlags = { ...prevFlags };
+            let shouldUpdate = false;
+            Object.keys(newFlags).forEach((flagKey) => {
+              const override = localOverrides[flagKey]
+              if (override && override.enabled !== undefined) {
+                updatedFlags[flagKey] = {...newFlags[flagKey], enabled: override.enabled}
+              } else {
+                if (newFlags[flagKey].enabled !== prevFlags[flagKey]?.enabled) {
+                  shouldUpdate = true;
+                  updatedFlags[flagKey] = newFlags[flagKey];
+                }
+              }
+            });
+            return shouldUpdate ? updatedFlags : prevFlags;
           });
-          return shouldUpdate ? updatedFlags : prevFlags;
-        });
+        }
+      } else {
+        throw new Error('Response not JSON')
       }
     } catch (error) {
       console.error("Error fetching flags:", error);
@@ -108,6 +124,22 @@ export const FlagsProvider: FC<FlagsProviderProps> = ({
     const interval = setInterval(fetchFlags, (intervalAllowed * 1000));
     return () => clearInterval(interval);
   }, [fetchFlags, intervalAllowed]);
+
+  useEffect(() => {
+    setFlags(prevFlags => {
+      let updatedFlags = {...prevFlags}
+      Object.keys(localOverrides).forEach(key => {
+        const override = localOverrides[key]
+        if (override && prevFlags[key]) {
+          updatedFlags[key] = {
+            ...prevFlags[key],
+            enabled: override.enabled
+          }
+        }
+      })
+      return updatedFlags
+    })
+  }, [localOverrides])
 
   const toggleFlag = useCallback((flagName: string) => {
     setFlags(prevFlags => {
@@ -125,14 +157,14 @@ export const FlagsProvider: FC<FlagsProviderProps> = ({
       const currentOverride = prevOverrides[flagName];
       const updatedOverride = {
         ...currentOverride,
-        enabled: !(currentOverride?.enabled ?? false),
+        enabled: !(currentOverride?.enabled ?? flags[flagName]?.enabled ?? false),
       };
       return {
         ...prevOverrides,
         [flagName]: updatedOverride,
       };
     });
-  }, []);
+  }, [flags]);
 
   return (
     <SetFlagsContext.Provider value={setFlags}>
@@ -159,9 +191,26 @@ export const useFlags = () => {
     throw new Error("useFlags must be inside a FlagsContext.Provider")
   }
 
+  const toggle = useCallback((flagName: string) => {
+    if (flags.hasOwnProperty(flagName)) {
+      setFlags(prevFlags => ({
+        ...prevFlags,
+        [flagName]: {
+          ...prevFlags[flagName],
+          enabled: !prevFlags[flagName].enabled
+        }
+      }));
+    } else {
+      console.error("Flag not found:", flagName);
+    }
+  }, [flags, setFlags]);
+
   return {
+    toggle,
     is: (flag: string) => ({
-      enabled: () => flags[flag]?.enabled ?? false,
+      enabled: () => {
+        return flags[flag]?.enabled ?? false
+      },
       initialize: (defaultValue = false) => {
         if (!flags.hasOwnProperty(flag)) {
           setFlags((prevFlags) => ({

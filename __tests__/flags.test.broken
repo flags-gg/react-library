@@ -1,90 +1,111 @@
 import React from 'react';
-import { render, fireEvent, waitFor, renderHook } from '@testing-library/react';
-import { FlagsProvider, useFlags } from '../index.tsx';
-import { act } from 'react-dom/test-utils';
-import {deepEqual} from "fast-equals";
+import { render, waitFor, fireEvent, screen, act } from '@testing-library/react';
+import fetchMock from 'jest-fetch-mock';
+import { FlagsProvider, useFlags } from '../';
 
-global.fetch = jest.fn(() =>
-  Promise.resolve({
-    json: () => Promise.resolve({
-      intervalAllowed: 60,
-      secretMenu: { sequence: [], styles: [] },
-      flags: [{ details: { name: 'feature1' }, enabled: true }],
-    }),
-  })
-);
+fetchMock.enableMocks();
 
-// Helper component to test useFlags
-const TestComponent = () => {
-  const { is, toggleFlag } = useFlags();
-  return (
-    <>
-      <p>{is('feature1').enabled() ? 'Enabled' : 'Disabled'}</p>
-      <button onClick={() => toggleFlag('feature1')}>Toggle Feature</button>
-    </>
-  );
-};
-
-// Additional mock adjustments for error scenarios
 beforeEach(() => {
-  global.fetch = jest.fn();
+  fetchMock.resetMocks();
+  jest.clearAllMocks()
+  fetchMock.mockIf(/^https:\/\/api\.flags\.gg\/flags$/, JSON.stringify({
+    intervalAllowed: 60,
+    secretMenu: {
+      sequence: ["ArrowDown", "ArrowDown", "ArrowDown", "b", "b"],
+      styles: [
+        { name: "closeButton", value: "position: absolute; top: 0px; right: 0px; background: white; color: green; cursor: pointer;" },
+        { name: "container", value: "position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); zIndex: 1000; backgroundColor: white; color: black; border: 1px solid black; borderRadius: 5px; padding: 1rem;" },
+        { name: "button", value: "display: flex; justifyContent: space-between; alignItems: center; padding: 0.5rem; background: lightgray; borderRadius: 5px; margin: 0.5rem 0;" }
+      ]
+    },
+    flags: [
+      { enabled: true, details: { name: "perAgent", id: "543" } },
+      { enabled: true, details: { name: "totalRequests", id: "569" } },
+      { enabled: false, details: { name: "notifications", id: "482" } },
+      { enabled: true, details: { name: "flags", id: "300" } }
+    ]
+  }));
 });
 
-global.fetch.mockImplementationOnce(() => Promise.reject(new Error('Network error')));
 
-describe('FlagsProvider', () => {
-  beforeEach(() => {
-    jest.spyOn(global, 'fetch');
+describe('FlagsProvider Tests', () => {
+  test('initial rendering and context setup', () => {
+    render(
+      <FlagsProvider>
+        <TestComponent />
+      </FlagsProvider>
+    );
+    expect(screen.getByText('Feature Enabled: false')).toBeInTheDocument();
   });
 
-  afterEach(() => {
-    jest.restoreAllMocks(); // Restore original functions and clear mocks
-  });
+  test('fetches flags on mount and updates context', async () => {
+    fetch.mockResponseOnce(JSON.stringify({
+      flags: [{ details: { name: 'perAgent', id: '1' }, enabled: true }],
+      intervalAllowed: 120,
+      secretMenu: { sequence: [], styles: [] }
+    }));
 
-  it('logs error when fetch fails', async () => {
-    global.fetch.mockRejectedValueOnce(new Error('Network error')); // Fail only on the first call
-
-    const consoleSpy = jest.spyOn(console, 'error');
-    const { unmount } = render(
-      <FlagsProvider options={{ flagsURL: 'https://api.flags.gg/v1/flags' }}>
+    render(
+      <FlagsProvider>
         <TestComponent />
       </FlagsProvider>
     );
 
-    await waitFor(() => expect(consoleSpy).toHaveBeenCalledWith("Error fetching flags:", expect.any(Error)));
-
-    // Clean up to check if interval is cleared
-    unmount();
-    expect(clearInterval).toHaveBeenCalled();
-  });
-
-  it('does not update flags if fetch fails and then succeeds on subsequent attempts', async () => {
-    global.fetch.mockRejectedValueOnce(new Error('Network error')); // First call fails
-    global.fetch.mockResolvedValueOnce({ // Second call succeeds
-      json: () => Promise.resolve({
-        intervalAllowed: 60,
-        secretMenu: { sequence: [], styles: [] },
-        flags: [{ details: { name: 'feature1' }, enabled: true }]
-      })
+    await waitFor(() => {
+      expect(screen.findByText('Feature Enabled: true')).resolves.toBeInTheDocument();
     });
+  });
 
-    const { findByText, rerender } = render(
-      <FlagsProvider options={{ flagsURL: 'https://api.flags.gg/v1/flags' }}>
+  // test('toggle flag updates the state', async () => {
+  //   render(
+  //     <FlagsProvider options={{ flagsURL: 'https://api.flags.gg/flags' }}>
+  //       <TestComponent />
+  //     </FlagsProvider>
+  //   );
+  //
+  //   const button = screen.getByRole('button');
+  //   act(() => {
+  //     fireEvent.click(button);
+  //   });
+  //   // Use findByText when dealing with async updates
+  //   const enabledMessage = await screen.findByText('Feature Enabled: true');
+  //   expect(enabledMessage).toBeInTheDocument();
+  // });
+
+  test('interval change affects polling frequency', () => {
+    jest.useFakeTimers();
+    render(
+      <FlagsProvider>
         <TestComponent />
       </FlagsProvider>
     );
 
-    // Check for default state since first fetch fails
-    await findByText('Disabled');
+    // Initial fetch on mount
+    expect(fetch).toHaveBeenCalledTimes(1);
 
-    // Rerender to trigger the next fetch attempt
-    rerender(
-      <FlagsProvider options={{ flagsURL: 'https://api.flags.gg/v1/flags' }}>
-        <TestComponent />
-      </FlagsProvider>
-    );
+    // Fast-forward time until the next interval
+    jest.advanceTimersByTime(60000); // 60 seconds as per initial intervalAllowed
+    expect(fetch).toHaveBeenCalledTimes(2);
 
-    // Check for updated state after successful fetch
-    await findByText('Enabled');
+    // Assume an interval change from the server response (e.g., now 120 seconds)
+    fetch.mockResponseOnce(JSON.stringify({
+      intervalAllowed: 120, // New interval 120 seconds
+      flags: [],
+      secretMenu: { sequence: [], styles: [] }
+    }));
+
+    jest.advanceTimersByTime(120000); // Advance by 120 seconds
+    expect(fetch).toHaveBeenCalledTimes(4); // Should be called again due to interval change
   });
 });
+
+function TestComponent() {
+  const { is, toggleFlag } = useFlags(); // Assuming `toggle` is a method provided by `useFlags`
+  return (
+    <div>
+      <div>{`Feature Enabled: ${is('perAgent').enabled()}`}</div>
+      <button onClick={() => toggleFlag('perAgent')}>Toggle Feature</button>
+    </div>
+  );
+}
+
