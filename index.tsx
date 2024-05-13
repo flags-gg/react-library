@@ -76,7 +76,10 @@ export const FlagsProvider: FC<FlagsProviderProps> = ({
       });
       if (!response.ok) {
         const errorText = await response.text()
-        throw new Error(`Error fetching flags, status: ${response.status}: ${errorText}`)
+        if (enableLogs) {
+          logIt(`Error fetching flags, status: ${response.status}: ${errorText}`);
+        }
+        return
       }
 
       if (response.headers.get('content-type')?.includes('application/json')) {
