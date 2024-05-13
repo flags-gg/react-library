@@ -81,42 +81,36 @@ export const FlagsProvider: FC<FlagsProviderProps> = ({
         }
         return
       }
-
-      if (response.headers.get('content-type')?.includes('application/json')) {
-        const data: ServerResponse = await response.json();
-        if (enableLogs) {
-          logIt("Flags fetched:", data);
-        }
-        setIntervalAllowed(data.intervalAllowed);
-        setSecretMenu(data.secretMenu.sequence);
-        setSecretMenuStyles(data.secretMenu.styles);
-        const newFlags = data.flags ? data.flags.reduce((acc: Flags, flag: Flag) => ({
-          ...acc,
-          [flag.details.name]: flag,
-        }), {}) : {};
-        if (!equal(flags, newFlags)) {
-          cache.setCacheEntry(cacheKey, newFlags, (intervalAllowed * 2000));
-          setFlags((prevFlags) => {
-            const updatedFlags = { ...prevFlags };
-            let shouldUpdate = false;
-            Object.keys(newFlags).forEach((flagKey) => {
-              const override = localOverrides[flagKey]
-              if (override && override.enabled !== undefined) {
-                updatedFlags[flagKey] = {...newFlags[flagKey], enabled: override.enabled}
-              } else {
-                if (newFlags[flagKey].enabled !== prevFlags[flagKey]?.enabled) {
-                  shouldUpdate = true;
-                  updatedFlags[flagKey] = newFlags[flagKey];
-                }
+      
+      const data: ServerResponse = await response.json();
+      if (enableLogs) {
+        logIt("Flags fetched:", data);
+      }
+      setIntervalAllowed(data.intervalAllowed);
+      setSecretMenu(data.secretMenu.sequence);
+      setSecretMenuStyles(data.secretMenu.styles);
+      const newFlags = data.flags ? data.flags.reduce((acc: Flags, flag: Flag) => ({
+        ...acc,
+        [flag.details.name]: flag,
+      }), {}) : {};
+      if (!equal(flags, newFlags)) {
+        cache.setCacheEntry(cacheKey, newFlags, (intervalAllowed * 2000));
+        setFlags((prevFlags) => {
+          const updatedFlags = { ...prevFlags };
+          let shouldUpdate = false;
+          Object.keys(newFlags).forEach((flagKey) => {
+            const override = localOverrides[flagKey]
+            if (override && override.enabled !== undefined) {
+              updatedFlags[flagKey] = {...newFlags[flagKey], enabled: override.enabled}
+            } else {
+              if (newFlags[flagKey].enabled !== prevFlags[flagKey]?.enabled) {
+                shouldUpdate = true;
+                updatedFlags[flagKey] = newFlags[flagKey];
               }
-            });
-            return shouldUpdate ? updatedFlags : prevFlags;
+            }
           });
-        }
-      } else {
-        if (enableLogs) {
-          logIt("Response isn't JSON", response);
-        }
+          return shouldUpdate ? updatedFlags : prevFlags;
+        });
       }
     } catch (error) {
       if (enableLogs) {
