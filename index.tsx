@@ -8,7 +8,6 @@ import React, {
   SetStateAction,
   Dispatch,
 } from "react";
-// @ts-ignore
 import {deepEqual as equal} from "fast-equals";
 
 import {
@@ -80,6 +79,8 @@ export const FlagsProvider: FC<FlagsProviderProps> = ({
         throw new Error(`Error fetching flags, status: ${response.status}: ${errorText}`)
       }
 
+      console.info("Response", response)
+
       if (response.headers.get('content-type')?.includes('application/json')) {
         const data: ServerResponse = await response.json();
         if (enableLogs) {
@@ -127,7 +128,7 @@ export const FlagsProvider: FC<FlagsProviderProps> = ({
 
   useEffect(() => {
     setFlags(prevFlags => {
-      let updatedFlags = {...prevFlags}
+      const updatedFlags = {...prevFlags}
       Object.keys(localOverrides).forEach(key => {
         const override = localOverrides[key]
         if (override && prevFlags[key]) {
@@ -192,7 +193,7 @@ export const useFlags = () => {
   }
 
   const toggle = useCallback((flagName: string) => {
-    if (flags.hasOwnProperty(flagName)) {
+    if (Object.prototype.hasOwnProperty.call(flags, flagName)) {
       setFlags(prevFlags => ({
         ...prevFlags,
         [flagName]: {
@@ -212,7 +213,7 @@ export const useFlags = () => {
         return flags[flag]?.enabled ?? false
       },
       initialize: (defaultValue = false) => {
-        if (!flags.hasOwnProperty(flag)) {
+        if (!Object.prototype.hasOwnProperty.call(flags, flag)) {
           setFlags((prevFlags) => ({
             ...prevFlags,
             [flag]: {
