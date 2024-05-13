@@ -111,15 +111,19 @@ export const FlagsProvider: FC<FlagsProviderProps> = ({
           });
         }
       } else {
-        throw new Error('Response not JSON')
+        if (enableLogs) {
+          logIt("Response isn't JSON", response);
+        }
       }
     } catch (error) {
-      console.error("Error fetching flags:", error);
+      if (enableLogs) {
+        logIt("Error fetching flags:", error);
+      }
     }
   }, [flagsURL, intervalAllowed, agentId, companyId, environmentId]);
 
   useEffect(() => {
-    fetchFlags().catch(console.error);
+    fetchFlags().catch(logIt);
     const interval = setInterval(fetchFlags, (intervalAllowed * 1000));
     return () => clearInterval(interval);
   }, [fetchFlags, intervalAllowed]);
@@ -200,7 +204,7 @@ export const useFlags = () => {
         }
       }));
     } else {
-      console.error("Flag not found:", flagName);
+      logIt("Flag not found", flagName)
     }
   }, [flags, setFlags]);
 
