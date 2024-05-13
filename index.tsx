@@ -193,7 +193,7 @@ export const useFlags = () => {
   }
 
   const toggle = useCallback((flagName: string) => {
-    if (flags.hasOwnProperty(flagName)) {
+    if (Object.prototype.hasOwnProperty.call(flags, flagName)) {
       setFlags(prevFlags => ({
         ...prevFlags,
         [flagName]: {
@@ -213,7 +213,7 @@ export const useFlags = () => {
         return flags[flag]?.enabled ?? false
       },
       initialize: (defaultValue = false) => {
-        if (!flags.hasOwnProperty(flag)) {
+        if (!Object.prototype.hasOwnProperty.call(flags, flag)) {
           setFlags((prevFlags) => ({
             ...prevFlags,
             [flag]: {
