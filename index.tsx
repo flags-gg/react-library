@@ -79,8 +79,6 @@ export const FlagsProvider: FC<FlagsProviderProps> = ({
         throw new Error(`Error fetching flags, status: ${response.status}: ${errorText}`)
       }
 
-      console.info("Response", response)
-
       if (response.headers.get('content-type')?.includes('application/json')) {
         const data: ServerResponse = await response.json();
         if (enableLogs) {
