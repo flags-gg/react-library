@@ -12,7 +12,7 @@ function App() {
   return (
     <BrowserRouter>
       <FlagsProvider options={{
-        companyId: "bob",
+        projectId: "bob",
         agentId: "bob",
         environmentId: "bob",
       }}>
@@ -25,5 +25,5 @@ function App() {
 export default App;
 ```
 
-You can get the companyId, agentId, and environmentId from flags.gg 
+You can get the projectId, agentId, and environmentId from flags.gg 
 
