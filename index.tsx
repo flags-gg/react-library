@@ -42,7 +42,7 @@ export const FlagsProvider: FC<FlagsProviderProps> = ({
 }) => {
   const {
     flagsURL = "https://api.flags.gg/v1/flags",
-    companyId,
+    projectId,
     agentId,
     environmentId,
     enableLogs,
@@ -56,7 +56,7 @@ export const FlagsProvider: FC<FlagsProviderProps> = ({
   const cache = new Cache();
 
   const fetchFlags = useCallback(async () => {
-    const cacheKey = `flags_${companyId}_${agentId}_${environmentId}`;
+    const cacheKey = `flags_${projectId}_${agentId}_${environmentId}`;
     const cachedFlags = cache.getCacheEntry(cacheKey);
     if (cachedFlags && equal(flags, cachedFlags)) {
       return;
@@ -64,7 +64,7 @@ export const FlagsProvider: FC<FlagsProviderProps> = ({
 
     const headers = new Headers({
       "Content-Type": "application/json",
-      ...(companyId && { "x-company-id": companyId }),
+      ...(projectId && { "x-project-id": projectId }),
       ...(agentId && { "x-agent-id": agentId }),
       ...(environmentId && { "x-environment-id": environmentId }),
     });
@@ -117,7 +117,7 @@ export const FlagsProvider: FC<FlagsProviderProps> = ({
         logIt("Error fetching flags:", error);
       }
     }
-  }, [flagsURL, intervalAllowed, agentId, companyId, environmentId]);
+  }, [flagsURL, intervalAllowed, agentId, projectId, environmentId]);
 
   useEffect(() => {
     fetchFlags().catch(logIt);

@@ -19,7 +19,7 @@ export interface Flags {
 }
 
 export interface FlagsProviderOptions {
-  companyId?: string;
+  projectId?: string;
   agentId?: string;
   environmentId?: string;
 
