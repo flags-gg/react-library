@@ -1,4 +1,4 @@
-import {CacheEntry} from './types'
+import {CacheEntry} from './types.d.ts'
 
 class Cache {
   private readonly cache: Record<string, CacheEntry>;

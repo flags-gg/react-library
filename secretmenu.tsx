@@ -1,8 +1,8 @@
 import React from "react";
 
 import { CSSProperties, FC, useEffect, useState } from "react";
-import { SecretMenuProps } from "./types";
-import { useFlags } from "./index";
+import { SecretMenuProps } from "./types.d.ts";
+import { useFlags } from "./index.tsx";
 
 const styles: { [key: string]: CSSProperties } = {
   closeButton: {

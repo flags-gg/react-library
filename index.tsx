@@ -16,9 +16,9 @@ import {
   FlagsProviderProps,
   SecretMenuStyle,
   ServerResponse,
-} from "./types";
-import { SecretMenu } from "./secretmenu";
-import {Cache} from "./cache";
+} from "./types.d.ts";
+import { SecretMenu } from "./secretmenu.tsx";
+import {Cache} from "./cache.ts";
 
 const defaultFlags: Flags = {};
 
