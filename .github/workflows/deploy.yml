@@ -21,7 +21,7 @@ jobs:
           git-tag-version: false
           version: ${{ steps.extract_tag.outputs.tag }}
       - name: install deno
-        uses: denoland/@setup-deno@v1
+        uses: denoland/setup-deno@v1
         with:
           deno-version: v1.x
       - name: Publish to JSR
