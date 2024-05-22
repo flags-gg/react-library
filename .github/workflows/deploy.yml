@@ -6,6 +6,22 @@ on:
       - published
 
 jobs:
+  jsr:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Extract tag
+        id: extract_tag
+        run: echo "::set-output name=tag::${GITHUB_REF/refs\/tags\//}"
+      - uses: reedyuk/npm-version@1.2.2
+        with:
+          git-tag-version: false
+          version: ${{ steps.extract_tag.outputs.tag }}
+      - name: Publish to JSR
+        run: npx jsr publish
   npm:
     runs-on: ubuntu-latest
     environment: production
