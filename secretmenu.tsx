@@ -129,7 +129,7 @@ export const SecretMenu: FC<SecretMenuProps> = ({
       <div style={styles.container}>
         <button
           style={styles.closeButton}
-          onClick={() => {
+          onMouseDown={() => {
             setShowMenu(false);
             setKeySequence([]);
           }}
@@ -142,7 +142,7 @@ export const SecretMenu: FC<SecretMenuProps> = ({
             <span>{formatFeatureName(key)}</span>
             <button
               key={`sm_button_${key}`}
-              onClick={() => handleToggle(value.details.name)}
+              onMouseDown={() => handleToggle(value.details.name)}
             >
               {value.enabled ? "Enabled" : "Disabled"}
             </button>
