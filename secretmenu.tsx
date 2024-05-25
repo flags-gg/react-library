@@ -124,27 +124,27 @@ export const SecretMenu: FC<SecretMenuProps> = ({
     }
   }, [keySequence, secretMenu]);
 
+  const formattedFlags = useMemo(() => {
+    return Object.entries(flags).map(([key, value]) => ({
+      key,
+      name: formatFeatureName(key),
+      enabled: value.enabled,
+    }))
+  }, [flags])
+
   return (
     showMenu && (
       <div style={styles.container}>
-        <button
-          style={styles.closeButton}
-          onMouseDown={() => {
+        <button style={styles.closeButton} onClick={() => {
             setShowMenu(false);
             setKeySequence([]);
-          }}
-        >
-          X
-        </button>
+          }}>X</button>
         <h1>Secret Menu</h1>
-        {Object.entries(flags).map(([key, value]) => (
+        {formattedFlags.map(({ key, name, enabled }) => (
           <div key={`sm_item_${key}`} style={styles.button}>
-            <span>{formatFeatureName(key)}</span>
-            <button
-              key={`sm_button_${key}`}
-              onMouseDown={() => handleToggle(value.details.name)}
-            >
-              {value.enabled ? "Enabled" : "Disabled"}
+            <span>{name}</span>
+            <button onClick={() => handleToggle(key)}>
+              {enabled ? "Enabled" : "Disabled"}
             </button>
           </div>
         ))}
