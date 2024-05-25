@@ -163,14 +163,14 @@ export const FlagsProvider: FC<FlagsProviderProps> = ({
       const currentOverride = prevOverrides[flagName];
       const updatedOverride = {
         ...currentOverride,
-        enabled: !(currentOverride?.enabled ?? flags[flagName]?.enabled ?? false),
+        enabled: !(currentOverride?.enabled ?? flags[flagName]?.enabled),
       };
       return {
         ...prevOverrides,
         [flagName]: updatedOverride,
       };
     });
-  }, [flags]);
+  }, [flags, setFlags, setLocalOverrides]);
 
   return (
     <SetFlagsContext.Provider value={setFlags}>
