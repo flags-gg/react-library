@@ -54,6 +54,7 @@ export const FlagsProvider: FC<FlagsProviderProps> = ({
   const [localOverrides, setLocalOverrides] = useState<Flags>({});
   const [secretMenuStyles, setSecretMenuStyles] = useState<SecretMenuStyle[]>([]);
   const cache = new Cache();
+  const initialFetchDoneRef = useRef(false)
 
   const fetchFlags = useCallback(async () => {
     const cacheKey = `flags_${projectId}_${agentId}_${environmentId}`;
@@ -120,9 +121,14 @@ export const FlagsProvider: FC<FlagsProviderProps> = ({
   }, [flagsURL, intervalAllowed, agentId, projectId, environmentId]);
 
   useEffect(() => {
-    fetchFlags().catch(logIt);
-    const interval = setInterval(fetchFlags, (intervalAllowed * 1000));
-    return () => clearInterval(interval);
+    if (!initialFetchDoneRef.current) {
+      fetchFlags().catch(logIt).finally(() => {
+        initialFetchDoneRef.current = true
+      })
+    } else {
+      const interval = setInterval(fetchFlags, (intervalAllowed * 1000));
+      return () => clearInterval(interval);
+    }
   }, [fetchFlags, intervalAllowed]);
 
   useEffect(() => {
@@ -130,7 +136,7 @@ export const FlagsProvider: FC<FlagsProviderProps> = ({
       const updatedFlags = {...prevFlags}
       Object.keys(localOverrides).forEach(key => {
         const override = localOverrides[key]
-        if (override && prevFlags[key]) {
+        if (override) {
           updatedFlags[key] = {
             ...prevFlags[key],
             enabled: override.enabled
