@@ -212,26 +212,28 @@ export const useFlags = () => {
     }
   }, [flags, setFlags]);
 
+  const initialize = useCallback((flag: string, defaultValue = false) => {
+    if (!Object.prototype.hasOwnProperty.call(flags, flag)) {
+      setFlags((prevFlags) => ({
+        ...prevFlags,
+        [flag]: {
+          details: {
+            name: flag,
+            id: (999 + Math.random()).toString(36).substring(2),
+          },
+          enabled: defaultValue,
+        },
+      }));
+    }
+  }, [flags, setFlags])
+
   return {
     toggle,
     is: (flag: string) => ({
       enabled: () => {
         return flags[flag]?.enabled ?? false
       },
-      initialize: (defaultValue = false) => {
-        if (!Object.prototype.hasOwnProperty.call(flags, flag)) {
-          setFlags((prevFlags) => ({
-            ...prevFlags,
-            [flag]: {
-              details: {
-                name: flag,
-                id: (999 + Math.random()).toString(36).substring(2),
-              },
-              enabled: defaultValue,
-            },
-          }));
-        }
-      },
+      initialize: (defaultValue = false) => initialize(flag, defaultValue),
     }),
   };
 };

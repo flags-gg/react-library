@@ -1,7 +1,7 @@
 {
   "name": "@flags-gg/react-library",
   "main": "index.tsx",
-  "version": "1.0.0",
+  "version": "99.9.9",
   "scripts": {
     "test": "jest test"
   },
