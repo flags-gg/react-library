@@ -122,14 +122,16 @@ export const FlagsProvider: FC<FlagsProviderProps> = ({
   }, [flagsURL, intervalAllowed, agentId, projectId, environmentId]);
 
   useEffect(() => {
-    if (!initialFetchDoneRef.current) {
-      fetchFlags().catch(logIt).finally(() => {
+    const fetchAndSchedule = async () => {
+      await fetchFlags()
+      if (!initialFetchDoneRef.current) {
         initialFetchDoneRef.current = true
-      })
-    } else {
-      const interval = setInterval(fetchFlags, (intervalAllowed * 1000));
-      return () => clearInterval(interval);
+      }
     }
+
+    fetchAndSchedule().catch(console.error)
+    const interval = setInterval(fetchAndSchedule, (intervalAllowed * 1000));
+    return () => clearInterval(interval);
   }, [fetchFlags, intervalAllowed]);
 
   useEffect(() => {
