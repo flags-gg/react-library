@@ -44,6 +44,13 @@ jobs:
       contents: write
     needs: qodana
     steps:
-      - uses: fastify/github-action-merge-dependabot@v3
+      - id: metadata
+        uses: dependabot/fetch-metadata@v2
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: merge
+        if: steps.metadata.output.update-type == 'version-update:semver-patch'
+        run: gh pr merge --auto --merge "$PR_URL"
+        env:
+          PR_URL: ${{github.event.pull_requests.html_url}}
+          GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
