@@ -1,11 +1,6 @@
 name: Release Drafter
 on:
   workflow_dispatch:
-  workflow_run:
-    workflows:
-      - "Pull Requests"
-    types:
-      - completed
   pull_request:
     branches:
       - main
