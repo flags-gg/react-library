@@ -48,9 +48,15 @@ jobs:
         uses: dependabot/fetch-metadata@v2
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Check Dependabot Author
+        id: check_author
+        run: echo "::set-output name=is_dependabot::$(echo ${{ github.actor }} | grep -q 'dependabot' && echo true || echo false)"
       - name: merge
         if: steps.metadata.outputs.update-type == 'version-update:semver-patch'
         run: gh pr merge --auto --merge "$PR_URL"
         env:
           PR_URL: ${{github.event.pull_request.html_url}}
           GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+      - name: Ensure Success
+        if: steps.check_author.outputs.is_dependabot == 'false'
+        run: echo "Non-Dependabot PR, skipping auto-merge check."
