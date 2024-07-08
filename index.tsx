@@ -17,7 +17,7 @@ import {
   FlagsProviderProps,
   SecretMenuStyle,
   ServerResponse,
-} from "./types.d";
+} from "./types";
 import { SecretMenu } from "./secretmenu";
 import {Cache} from "./cache";
 
