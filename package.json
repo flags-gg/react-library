@@ -4,7 +4,7 @@
   "scripts": {
     "test": "jest test",
     "build": "rollup -c",
-    "prepublishOnly": "pnpm build"
+    "prepublishOnly": "npm build"
   },
   "author": "Keloran",
   "private": false,
