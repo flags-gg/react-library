@@ -17,11 +17,11 @@ import {
   FlagsProviderProps,
   SecretMenuStyle,
   ServerResponse,
-} from "./types.d.ts";
-import { SecretMenu } from "./secretmenu.tsx";
-import {Cache} from "./cache.ts";
+} from "./types";
+import { SecretMenu } from "./secretmenu";
+import {Cache} from "./cache";
 
-const defaultFlags: Flags = {};
+const defaultFlags = {} as Flags;
 
 // Contextx
 const FlagsContext = createContext<Flags>(defaultFlags);
