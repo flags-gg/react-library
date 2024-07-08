@@ -21,7 +21,15 @@ import {
 import { SecretMenu } from "./secretmenu";
 import {Cache} from "./cache";
 
-const defaultFlags = {} as Flags;
+const defaultFlags: Flags = {
+  dummyFlag: {
+    enabled: false,
+    details: {
+      name: "dummyFlag",
+      id: "dummy"
+    }
+  }
+};
 
 // Contextx
 const FlagsContext = createContext<Flags>(defaultFlags);
