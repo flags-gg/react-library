@@ -1,4 +1,4 @@
-import {formatFeatureName} from '../secretmenu.tsx'
+import {formatFeatureName} from '../src/secretmenu.tsx'
 
 describe('formatFeatureName', () => {
   it('should capitalize the first letter of each word and add a space before capital letters', () => {
