@@ -25,7 +25,7 @@ module.exports = {
           dest: 'dist/src'
         },
         {
-          src: 'src/flags-gg_react-library.d.ts',
+          src: 'src/flags-gg__react-library.d.ts',
           dest: 'dist'
         }
       ]
