@@ -22,7 +22,7 @@ module.exports = {
       targets: [
         {
           src: 'src/types.d.ts',
-          dest: 'dist'
+          dest: 'dist/src'
         },
         {
           src: 'src/flags-gg_react-library.d.ts',
