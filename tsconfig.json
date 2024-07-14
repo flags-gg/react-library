@@ -30,7 +30,8 @@
     "noFallthroughCasesInSwitch": true,
   },
   "include": [
-    "src"
+    "src",
+    "src/flags-gg__react-library.d.ts"
   ],
   "exclude": [
     "node_modules",
