@@ -25,6 +25,10 @@ jobs:
         with:
           node-version: '20.x'
           registry-url: 'https://registry.npmjs.org'
+      - name: Deps
+        run: npm ci
+      - name: Rollup
+        run: npm run build
       - name: NPM
         run: npm publish --no-git-checks
         env:
@@ -47,6 +51,10 @@ jobs:
         with:
           node-version: '20.x'
           registry-url: 'https://npm.chewedfeed.com'
+      - name: Deps
+        run: npm ci
+      - name: Rollup
+        run: npm run build
       - name: Chewed-K8s
         run: npm publish --registry https://npm.chewedfeed.com --no-git-checks
         env:
