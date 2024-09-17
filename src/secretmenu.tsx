@@ -7,11 +7,12 @@ import { useFlags } from "./";
 const styles: { [key: string]: CSSProperties } = {
   closeButton: {
     position: "absolute",
-    top: 0,
-    right: 0,
-    color: "black",
+    top: "0.2rem",
+    right: "0.5rem",
+    color: "#F8F8F2",
     cursor: "pointer",
     background: "transparent",
+    fontWeight: 900
   },
   container: {
     position: "fixed",
@@ -19,21 +20,43 @@ const styles: { [key: string]: CSSProperties } = {
     left: "50%",
     transform: "translate(-50%, -50%)",
     zIndex: 9001,
-    backgroundColor: "white",
+    backgroundColor: "#282A36",
     color: "black",
-    border: "1px solid black",
-    borderRadius: "5px",
+    border: "2px solid #BD93F9",
+    borderRadius: "0.5rem",
     padding: "1rem",
   },
-  button: {
+  flag: {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
     padding: "0.5rem",
-    background: "lightgray",
+    background: "#44475A",
     borderRadius: "5px",
     margin: "0.5rem 0",
+    color: "#F8F8F2",
+    minWidth: "20rem"
   },
+  buttonEnabled: {
+    background: "#BD93F9",
+    padding: "0.4rem",
+    borderRadius: "0.5rem",
+    color: "#44475A",
+    fontWeight: 500
+  },
+  buttonDisabled: {
+    background: "#FF79C6",
+    padding: "0.4rem",
+    borderRadius: "0.5rem",
+    color: "#44475A",
+    fontWeight: 500
+  },
+  header: {
+    fontWeight: 700,
+    color: "#F8F8F2",
+    top: "-0.6rem",
+    position: "relative"
+  }
 };
 
 export const formatFeatureName = (name: string): string => {
@@ -139,11 +162,11 @@ export const SecretMenu: FC<SecretMenuProps> = ({
             setShowMenu(false);
             setKeySequence([]);
           }}>X</button>
-        <h1>Secret Menu</h1>
+        <h1 style={styles.header}>Secret Menu</h1>
         {formattedFlags.map(({ key, name, enabled }) => (
-          <div key={`sm_item_${key}`} style={styles.button}>
+          <div key={`sm_item_${key}`} style={styles.flag}>
             <span>{name}</span>
-            <button onClick={() => handleToggle(key)}>
+            <button onClick={() => handleToggle(key)} style={enabled ? styles.buttonEnabled : styles.buttonDisabled}>
               {enabled ? "Enabled" : "Disabled"}
             </button>
           </div>
