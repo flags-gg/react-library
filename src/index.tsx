@@ -79,6 +79,10 @@ export const FlagsProvider: FC<FlagsProviderProps> = ({
       ...(environmentId && { "x-environment-id": environmentId }),
     });
 
+    if (!agentId && !projectId && !environmentId) {
+      return
+    }
+
     try {
       const response = await fetch(flagsURL, {
         method: "GET",
