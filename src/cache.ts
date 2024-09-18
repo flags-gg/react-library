@@ -1,4 +1,4 @@
-import {type CacheEntry} from './types'
+import {type CacheEntry, Flags} from './types'
 
 class Cache {
   private readonly cache: Record<string, CacheEntry>;
@@ -20,7 +20,7 @@ class Cache {
     return null
   }
 
-  setCacheEntry(key: string, data: never, ttl: number): void {
+  setCacheEntry(key: string, data: Flags, ttl: number): void {
     const currentTime = Date.now();
     this.cache[key] = {
       data: data,
