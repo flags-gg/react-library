@@ -1,4 +1,4 @@
-import React from 'react'
+import {CSSProperties, ReactNode} from "react";
 
 export interface SecretMenuStyle {
   name: string;
@@ -16,7 +16,7 @@ export interface Flag {
     id: string
   }
 }
-export interface Flags {
+export type Flags = {
   [key: string]: Flag;
 }
 
@@ -31,7 +31,7 @@ export interface FlagsProviderOptions {
 
 export interface FlagsProviderProps {
   options?: FlagsProviderOptions;
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
 export interface ServerResponse {
@@ -48,7 +48,11 @@ export interface SecretMenuProps {
 }
 
 export interface CacheEntry {
-  data: any;
+  data: never;
   timestamp: number;
   ttl: number;
+}
+
+export interface ExtendsCSSProperties extends CSSProperties {
+  [key: string]: string | number | undefined;
 }

@@ -1,7 +1,7 @@
-import React, {useMemo} from "react";
+import {useMemo} from "react";
 
 import { CSSProperties, FC, useEffect, useState } from "react";
-import { SecretMenuProps } from "./types";
+import {ExtendsCSSProperties, SecretMenuProps} from "./types";
 import { useFlags } from "./";
 
 const styles: { [key: string]: CSSProperties } = {
@@ -73,7 +73,7 @@ export const formatFeatureName = (name: string): string => {
 export const parseStyle = (styleString: string): CSSProperties => {
   styleString = styleString.replace(/",/g, '";');
 
-  const styleObject: CSSProperties = {};
+  const styleObject: ExtendsCSSProperties = {};
   const cssProperties = styleString.split(";");
 
   cssProperties.forEach((property: string) => {
@@ -94,7 +94,7 @@ export const parseStyle = (styleString: string): CSSProperties => {
       .replace(/"/g, "");
 
     if (key && value) {
-      (styleObject as React.CSSProperties & {[key: string]: any})[key] = value;
+      styleObject[key] = value
     }
   });
 

@@ -3,6 +3,7 @@
   "version": "99.9.9",
   "scripts": {
     "test": "jest test",
+    "lint": "eslint .",
     "build": "rollup -c"
   },
   "author": "Keloran",
@@ -46,7 +47,11 @@
     "@types/react-dom": "^18.3.0",
     "@typescript-eslint/eslint-plugin": "^7.16.1",
     "babel-jest": "^29.7.0",
+    "eslint": "^9.10.0",
+    "eslint-plugin-react": "^7.36.1",
+    "eslint-plugin-react-compiler": "0.0.0-experimental-7670337-20240918",
     "extend-expect": "link:@testing-library/jest-dom/extend-expect",
+    "globals": "^15.9.0",
     "identity-obj-proxy": "^3.0.0",
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
@@ -57,7 +62,8 @@
     "rollup": "^4.21.3",
     "rollup-plugin-copy": "^3.5.0",
     "rollup-plugin-typescript2": "^0.36.0",
-    "typescript": "^5.6.2"
+    "typescript": "^5.6.2",
+    "typescript-eslint": "^8.6.0"
   },
   "dependencies": {
     "fast-equals": "^5.0.1"
