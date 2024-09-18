@@ -1,9 +1,11 @@
 {
   "name": "@flags-gg/react-library",
   "version": "99.9.9",
+  "type": "module",
   "scripts": {
-    "test": "jest test",
-    "lint": "eslint .",
+    "test": "pnpm lint && pnpm typecheck",
+    "lint": "eslint src",
+    "typecheck": "tsc",
     "build": "bunchee --tsconfig tsconfig.build.json"
   },
   "author": "Keloran",
