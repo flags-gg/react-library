@@ -13,7 +13,7 @@ import {deepEqual as equal} from "fast-equals";
 
 import {
   Flag,
-  type Flags,
+  Flags,
   FlagsProviderProps,
   SecretMenuStyle,
   ServerResponse,

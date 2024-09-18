@@ -16,7 +16,7 @@ export interface Flag {
     id: string
   }
 }
-export type Flags = {
+export interface Flags {
   [key: string]: Flag;
 }
 
@@ -48,7 +48,7 @@ export interface SecretMenuProps {
 }
 
 export interface CacheEntry {
-  data: never;
+  data: Flags;
   timestamp: number;
   ttl: number;
 }
