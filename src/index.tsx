@@ -13,6 +13,7 @@ import {deepEqual as equal} from "fast-equals";
 
 import {
   Flag,
+  type FlagChecker,
   Flags,
   FlagsProviderProps,
   SecretMenuStyle,
@@ -243,11 +244,15 @@ export const useFlags = () => {
 
   return {
     toggle,
-    is: (flag: string) => ({
+    is: (flag: string): FlagChecker => ({
       enabled: () => {
         return flags[flag]?.enabled ?? false
       },
       initialize: (defaultValue = false) => initialize(flag, defaultValue),
+      details: flags[flag]?.details ?? {
+        name: flag,
+        id: ''
+      }
     }),
   };
 };

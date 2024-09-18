@@ -10,7 +10,7 @@ interface SecretMenuResponse {
 }
 
 export interface Flag {
-  enabled?: boolean;
+  enabled: boolean;
   details: {
     name: string;
     id: string
@@ -55,4 +55,9 @@ export interface CacheEntry {
 
 export interface ExtendsCSSProperties extends CSSProperties {
   [key: string]: string | number | undefined;
+}
+
+export type FlagChecker = Omit<Flag, 'enabled'> & {
+  enabled: () => boolean;
+  initialize: (defaultValue?: boolean) => void;
 }
