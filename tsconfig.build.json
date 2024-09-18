@@ -1,0 +1,7 @@
+{
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "moduleResolution": "Bundler",
+  },
+  "include": ["src/**/*", "*.ts", "test"]
+}
