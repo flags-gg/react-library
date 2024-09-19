@@ -114,15 +114,15 @@ export const FlagsProvider: FC<FlagsProviderProps> = ({
           const updatedFlags = { ...prevFlags };
           let shouldUpdate = false;
           Object.keys(newFlags).forEach((flagKey) => {
-            const override = localOverrides[flagKey]
-            if (override && override.enabled !== undefined) {
-              updatedFlags[flagKey] = {...newFlags[flagKey], enabled: override.enabled}
-            } else {
+//            const override = localOverrides[flagKey]
+//            if (override && override.enabled !== undefined) {
+//              updatedFlags[flagKey] = {...newFlags[flagKey], enabled: override.enabled}
+//            } else {
               if (newFlags[flagKey].enabled !== prevFlags[flagKey]?.enabled) {
                 shouldUpdate = true;
                 updatedFlags[flagKey] = newFlags[flagKey];
               }
-            }
+//            }
           });
           return shouldUpdate ? updatedFlags : prevFlags;
         });
@@ -163,30 +163,42 @@ export const FlagsProvider: FC<FlagsProviderProps> = ({
     })
   }, [localOverrides])
 
+//  const toggleFlag = useCallback((flagName: string) => {
+//    setFlags(prevFlags => {
+//      const currentFlag = prevFlags[flagName];
+//      const updatedFlag = {
+//        ...currentFlag,
+//        enabled: !currentFlag.enabled,
+//      };
+//      return {
+//        ...prevFlags,
+//        [flagName]: updatedFlag,
+//      };
+//    });
+//    setLocalOverrides(prevOverrides => {
+//      const currentOverride = prevOverrides[flagName];
+//      const updatedOverride = {
+//        ...currentOverride,
+//        enabled: !(currentOverride?.enabled ?? flags[flagName]?.enabled),
+//      };
+//      return {
+//        ...prevOverrides,
+//        [flagName]: updatedOverride,
+//      };
+//    });
+//  }, [flags, setFlags, setLocalOverrides]);
+
   const toggleFlag = useCallback((flagName: string) => {
-    setFlags(prevFlags => {
-      const currentFlag = prevFlags[flagName];
-      const updatedFlag = {
-        ...currentFlag,
-        enabled: !currentFlag.enabled,
-      };
-      return {
-        ...prevFlags,
-        [flagName]: updatedFlag,
-      };
-    });
     setLocalOverrides(prevOverrides => {
-      const currentOverride = prevOverrides[flagName];
-      const updatedOverride = {
-        ...currentOverride,
-        enabled: !(currentOverride?.enabled ?? flags[flagName]?.enabled),
-      };
+      const prevEnabled = prevOverrides[flagName]?.enabled ?? flags[flagName]?.enabled ?? false;
       return {
         ...prevOverrides,
-        [flagName]: updatedOverride,
+        [flagName]: {
+          enabled: !prevEnabled,
+        },
       };
     });
-  }, [flags, setFlags, setLocalOverrides]);
+  }, [flags]);
 
   return (
     <SetFlagsContext.Provider value={setFlags}>

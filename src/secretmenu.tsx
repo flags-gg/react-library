@@ -147,13 +147,21 @@ export const SecretMenu: FC<SecretMenuProps> = ({
     }
   }, [keySequence, secretMenu]);
 
+//  const formattedFlags = useMemo(() => {
+//    return Object.entries(flags).map(([key, value]) => ({
+//      key,
+//      name: formatFeatureName(key),
+//      enabled: value.enabled,
+//    }))
+//  }, [flags])
+
   const formattedFlags = useMemo(() => {
     return Object.entries(flags).map(([key, value]) => ({
       key,
       name: formatFeatureName(key),
-      enabled: value.enabled,
-    }))
-  }, [flags])
+      enabled: localOverrides[key]?.enabled ?? value.enabled,
+    }));
+  }, [flags, localOverrides]);
 
   return (
     showMenu && (
