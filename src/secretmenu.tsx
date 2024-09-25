@@ -12,7 +12,7 @@ const styles: { [key: string]: CSSProperties } = {
     color: "#F8F8F2",
     cursor: "pointer",
     background: "transparent",
-    fontWeight: 900
+    fontWeight: 900,
   },
   container: {
     position: "fixed",
@@ -35,27 +35,28 @@ const styles: { [key: string]: CSSProperties } = {
     borderRadius: "5px",
     margin: "0.5rem 0",
     color: "#F8F8F2",
-    minWidth: "20rem"
+    minWidth: "20rem",
   },
   buttonEnabled: {
     background: "#BD93F9",
     padding: "0.4rem",
     borderRadius: "0.5rem",
     color: "#44475A",
-    fontWeight: 500
+    fontWeight: 500,
   },
   buttonDisabled: {
     background: "#FF79C6",
     padding: "0.4rem",
     borderRadius: "0.5rem",
     color: "#44475A",
-    fontWeight: 500
+    fontWeight: 500,
   },
   header: {
     fontWeight: 700,
     color: "#F8F8F2",
     top: "-0.6rem",
-    position: "relative"
+    position: "relative",
+    marginRight: "0.5rem",
   }
 };
 
