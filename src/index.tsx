@@ -8,6 +8,7 @@ import {
   useCallback,
   SetStateAction,
   Dispatch,
+  useMemo,
 } from "react";
 import {deepEqual as equal} from "fast-equals";
 
@@ -21,6 +22,8 @@ import {
 } from "./types";
 import { SecretMenu } from "./secretmenu";
 import {Cache} from "./cache";
+import { useAtom } from "jotai";
+import { atomWithStorage, RESET } from "jotai/utils";
 
 const defaultFlags: Flags = {
   dummyFlag: {
@@ -37,6 +40,9 @@ const FlagsContext = createContext<Flags>(defaultFlags);
 const SetFlagsContext = createContext<
   Dispatch<SetStateAction<Flags>> | undefined
 >(undefined);
+
+// Local Flags
+const localFlagSettings = atomWithStorage<Flags>("localFlags", {})
 
 const logIt = (...message: unknown[]) => {
   console.log.apply(console, [
@@ -61,7 +67,7 @@ export const FlagsProvider: FC<FlagsProviderProps> = ({
   const [flags, setFlags] = useState<Flags>({});
   const [intervalAllowed, setIntervalAllowed] = useState(60);
   const [secretMenu, setSecretMenu] = useState<string[]>([]);
-  const [localOverrides, setLocalOverrides] = useState<Flags>({});
+  const [localOverrides, setLocalOverrides] = useAtom(localFlagSettings);
   const [secretMenuStyles, setSecretMenuStyles] = useState<SecretMenuStyle[]>([]);
   const cache = new Cache();
   const initialFetchDoneRef = useRef(false)
@@ -147,57 +153,49 @@ export const FlagsProvider: FC<FlagsProviderProps> = ({
     return () => clearInterval(interval);
   }, [fetchFlags, intervalAllowed]);
 
-  useEffect(() => {
-    setFlags(prevFlags => {
-      const updatedFlags = {...prevFlags}
-      Object.keys(localOverrides).forEach(key => {
-        const override = localOverrides[key]
-        if (override) {
-          updatedFlags[key] = {
-            ...prevFlags[key],
-            enabled: override.enabled
-          }
-        }
-      })
-      return updatedFlags
-    })
-  }, [localOverrides])
-
   const toggleFlag = useCallback((flagName: string) => {
-    setFlags(prevFlags => {
-      const currentFlag = prevFlags[flagName];
-      const updatedFlag = {
-        ...currentFlag,
-        enabled: !currentFlag.enabled,
-      };
-      return {
-        ...prevFlags,
-        [flagName]: updatedFlag,
-      };
-    });
     setLocalOverrides(prevOverrides => {
       const currentOverride = prevOverrides[flagName];
+      const currentEnabled =
+        currentOverride?.enabled ?? flags[flagName]?.enabled ?? false;
       const updatedOverride = {
         ...currentOverride,
-        enabled: !(currentOverride?.enabled ?? flags[flagName]?.enabled),
+        enabled: !currentEnabled,
       };
+
       return {
         ...prevOverrides,
         [flagName]: updatedOverride,
       };
     });
-  }, [flags, setFlags, setLocalOverrides]);
+  }, [flags, setLocalOverrides]);
+
+  const resetFlags = useCallback(() => {
+    setLocalOverrides(RESET)
+  }, [setLocalOverrides])
+
+  const effectiveFlags = useMemo(() => {
+    const mergedFlags = { ...flags };
+    Object.keys(localOverrides).forEach(flagName => {
+      mergedFlags[flagName] = {
+        ...mergedFlags[flagName],
+        enabled: localOverrides[flagName].enabled,
+      };
+    });
+    return mergedFlags;
+  }, [flags, localOverrides]);
 
   return (
     <SetFlagsContext.Provider value={setFlags}>
-      <FlagsContext.Provider value={flags}>
+      <FlagsContext.Provider value={effectiveFlags}>
         {children}
         {secretMenu?.length >= 1 && (
           <SecretMenu
             secretMenu={secretMenu}
-            flags={flags}
+            flags={effectiveFlags}
             toggleFlag={toggleFlag}
             secretMenuStyles={secretMenuStyles}
+            resetFlags={resetFlags}
           />
         )}
       </FlagsContext.Provider>
@@ -245,13 +243,11 @@ export const useFlags = () => {
   return {
     toggle,
     is: (flag: string): FlagChecker => ({
-      enabled: () => {
-        return flags[flag]?.enabled ?? false
-      },
+      enabled: () => flags[flag]?.enabled ?? false,
       initialize: (defaultValue = false) => initialize(flag, defaultValue),
       details: flags[flag]?.details ?? {
         name: flag,
-        id: ''
+        id: '',
       }
     }),
   };

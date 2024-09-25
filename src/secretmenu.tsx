@@ -3,12 +3,22 @@ import {useMemo} from "react";
 import { CSSProperties, FC, useEffect, useState } from "react";
 import {ExtendsCSSProperties, SecretMenuProps} from "./types";
 import { useFlags } from "./";
+import { CircleX, RefreshCcw } from "lucide-react";
 
 const styles: { [key: string]: CSSProperties } = {
   closeButton: {
     position: "absolute",
     top: "0.2rem",
     right: "0.5rem",
+    color: "#F8F8F2",
+    cursor: "pointer",
+    background: "transparent",
+    fontWeight: 900,
+  },
+  resetButton: {
+    position: "absolute",
+    top: "0.3rem",
+    left: "0.5rem",
     color: "#F8F8F2",
     cursor: "pointer",
     background: "transparent",
@@ -56,7 +66,8 @@ const styles: { [key: string]: CSSProperties } = {
     color: "#F8F8F2",
     top: "-0.6rem",
     position: "relative",
-    marginRight: "0.5rem",
+    marginRight: "1rem",
+    marginLeft: "1.5rem",
   }
 };
 
@@ -107,6 +118,7 @@ export const SecretMenu: FC<SecretMenuProps> = ({
   toggleFlag,
   flags,
   secretMenuStyles,
+  resetFlags,
 }) => {
   const [showMenu, setShowMenu] = useState(false);
   const [keySequence, setKeySequence] = useState<string[]>([]);
@@ -156,13 +168,20 @@ export const SecretMenu: FC<SecretMenuProps> = ({
     }))
   }, [flags])
 
+  const closeMenu = () => {
+    setShowMenu(false);
+    setKeySequence([]);
+  }
+
+  const resetDefaults = () => {
+    resetFlags()
+  }
+
   return (
     showMenu && (
       <div style={styles.container}>
-        <button style={styles.closeButton} onClick={() => {
-            setShowMenu(false);
-            setKeySequence([]);
-          }}>X</button>
+        <button style={styles.resetButton} onClick={resetDefaults}><RefreshCcw /></button>
+        <button style={styles.closeButton} onClick={closeMenu}><CircleX /></button>
         <h1 style={styles.header}>Secret Menu</h1>
         {formattedFlags.map(({ key, name, enabled }) => (
           <div key={`sm_item_${key}`} style={styles.flag}>
