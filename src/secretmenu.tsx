@@ -4,8 +4,6 @@ import { CSSProperties, FC, useEffect, useState } from "react";
 import {ExtendsCSSProperties, SecretMenuProps} from "./types";
 import { useFlags } from "./";
 import { CircleX, RefreshCcw } from "lucide-react";
-import { useAtom } from "jotai";
-import {RESET} from "jotai/utils"
 
 const styles: { [key: string]: CSSProperties } = {
   closeButton: {
