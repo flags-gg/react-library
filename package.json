@@ -55,7 +55,7 @@
     "@types/node": "^22.7.4",
     "@types/react": "^18.3.10",
     "@types/react-dom": "^18.3.0",
-    "@typescript-eslint/eslint-plugin": "^8.7.0",
+    "@typescript-eslint/eslint-plugin": "^8.8.0",
     "bunchee": "^5.5.0",
     "eslint": "^9.11.1",
     "eslint-plugin-react": "^7.37.0",
