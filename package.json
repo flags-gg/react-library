@@ -58,7 +58,7 @@
     "@typescript-eslint/eslint-plugin": "^8.8.0",
     "bunchee": "^5.5.0",
     "eslint": "^9.11.1",
-    "eslint-plugin-react": "^7.37.0",
+    "eslint-plugin-react": "^7.37.1",
     "eslint-plugin-react-compiler": "0.0.0",
     "extend-expect": "link:@testing-library/jest-dom/extend-expect",
     "globals": "^15.9.0",
