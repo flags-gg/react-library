@@ -128,7 +128,7 @@ export const SecretMenu: FC<SecretMenuProps> = ({
       })
     }
     return updatedStyles
-  })
+  }, [secretMenuStyles])
 
   useEffect(() => {
     const keyHandler = (event: KeyboardEvent) => {
