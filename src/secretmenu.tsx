@@ -1,11 +1,9 @@
-import {useMemo} from "react";
-
-import { CSSProperties, FC, useEffect, useState } from "react";
-import {ExtendsCSSProperties, SecretMenuProps} from "./types";
+import { CSSProperties, FC, useEffect, useState, useMemo } from "react";
+import {SecretMenuProps, SecretMenuStyle} from "./types";
 import { useFlags } from "./";
 import { CircleX, RefreshCcw } from "lucide-react";
 
-const styles: { [key: string]: CSSProperties } = {
+const baseStyles: { [key: string]: CSSProperties } = {
   closeButton: {
     position: "absolute",
     top: "0.2rem",
@@ -82,35 +80,19 @@ export const formatFeatureName = (name: string): string => {
     .join(" ");
 };
 
-export const parseStyle = (styleString: string): CSSProperties => {
-  styleString = styleString.replace(/",/g, '";');
-
-  const styleObject: ExtendsCSSProperties = {};
-  const cssProperties = styleString.split(";");
-
-  cssProperties.forEach((property: string) => {
-    if (!property) {
-      return;
-    }
-
-    const colonIndex = property.indexOf(":");
-    if (colonIndex === -1) {
-      console.error("Invalid CSS property format:", property);
-      return;
-    }
-
-    const key = property.substring(0, colonIndex).trim().replace(/"/g, "");
-    const value = property
-      .substring(colonIndex + 1)
-      .trim()
-      .replace(/"/g, "");
-
-    if (key && value) {
-      styleObject[key] = value
-    }
-  });
-
-  return styleObject;
+const parseStyle = (elementName: string, styleString: string): CSSProperties => {
+  try {
+    const styleObject = JSON.parse(styleString);
+    return Object.fromEntries(
+      Object.entries(styleObject).map(([key, value]) => [
+        key.replace(/([-_][a-z])/g, (group) => group.toUpperCase().replace('-', '').replace('_', '')),
+        value
+      ])
+    );
+  } catch (error) {
+    console.error(`Error parsing style for ${elementName}:`, error);
+    return {};
+  }
 };
 
 export const SecretMenu: FC<SecretMenuProps> = ({
@@ -134,11 +116,19 @@ export const SecretMenu: FC<SecretMenuProps> = ({
     toggleFlag(key);
   };
 
-  if (secretMenuStyles) {
-    secretMenuStyles.forEach((style) => {
-      styles[style.name] = parseStyle(style.value);
-    });
-  }
+  const styles = useMemo(() => {
+    const updatedStyles = { ...baseStyles }
+    if (secretMenuStyles) {
+      secretMenuStyles.forEach((style: SecretMenuStyle) => {
+        const parsedStyle = parseStyle(style.name, style.value)
+        updatedStyles[style.name] = {
+          ...updatedStyles[style.name],
+          ...parsedStyle
+        }
+      })
+    }
+    return updatedStyles
+  }, [secretMenuStyles])
 
   useEffect(() => {
     const keyHandler = (event: KeyboardEvent) => {
