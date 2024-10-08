@@ -6,7 +6,7 @@ import { CircleX, RefreshCcw } from "lucide-react";
 const baseStyles: { [key: string]: CSSProperties } = {
   closeButton: {
     position: "absolute",
-    top: "0.2rem",
+    top: "0.3rem",
     right: "0.5rem",
     color: "#F8F8F2",
     cursor: "pointer",
@@ -29,8 +29,10 @@ const baseStyles: { [key: string]: CSSProperties } = {
     transform: "translate(-50%, -50%)",
     zIndex: 9001,
     backgroundColor: "#282A36",
-    color: "black",
-    border: "2px solid #BD93F9",
+    color: "#000000",
+    borderStyle: "solid",
+    borderColor: "#BD93F9",
+    borderWidth: "2px",
     borderRadius: "0.5rem",
     padding: "1rem",
   },
@@ -39,9 +41,8 @@ const baseStyles: { [key: string]: CSSProperties } = {
     justifyContent: "space-between",
     alignItems: "center",
     padding: "0.5rem",
-    background: "#44475A",
-    borderRadius: "5px",
-    margin: "0.5rem 0",
+    backgroundColor: "#44475A",
+    margin: "0.5rem",
     color: "#F8F8F2",
     minWidth: "20rem",
   },
@@ -61,11 +62,12 @@ const baseStyles: { [key: string]: CSSProperties } = {
   },
   header: {
     fontWeight: 700,
-    color: "#F8F8F2",
+    color: "#8BE9FD",
     top: "-0.6rem",
     position: "relative",
     marginRight: "1rem",
     marginLeft: "1.5rem",
+    width: "10rem",
   }
 };
 
