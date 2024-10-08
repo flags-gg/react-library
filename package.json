@@ -51,13 +51,13 @@
     "@testing-library/jest-dom": "^6.5.0",
     "@testing-library/react": "^16.0.1",
     "@types/jest": "^29.5.13",
-    "@types/mocha": "^10.0.8",
-    "@types/node": "^22.7.4",
+    "@types/mocha": "^10.0.9",
+    "@types/node": "^22.7.5",
     "@types/react": "^18.3.11",
     "@types/react-dom": "^18.3.0",
-    "@typescript-eslint/eslint-plugin": "^8.8.0",
-    "bunchee": "^5.5.0",
-    "eslint": "^9.11.1",
+    "@typescript-eslint/eslint-plugin": "^8.8.1",
+    "bunchee": "^5.5.1",
+    "eslint": "^9.12.0",
     "eslint-plugin-react": "^7.37.1",
     "eslint-plugin-react-compiler": "0.0.0",
     "extend-expect": "link:@testing-library/jest-dom/extend-expect",
@@ -70,11 +70,11 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "typescript": "^5.6.2",
-    "typescript-eslint": "^8.8.0"
+    "typescript-eslint": "^8.8.1"
   },
   "dependencies": {
     "fast-equals": "^5.0.1",
     "jotai": "^2.10.0",
-    "lucide-react": "^0.447.0"
+    "lucide-react": "^0.449.0"
   }
 }
