@@ -1,4 +1,4 @@
-import { CSSProperties, FC, useEffect, useState, useMemo } from "react";
+import { CSSProperties, FC, useEffect, useState, useMemo, useCallback } from "react";
 import {SecretMenuProps, SecretMenuStyle} from "./types";
 import { useFlags } from "./";
 import { CircleX, RefreshCcw } from "lucide-react";
@@ -8,32 +8,33 @@ const baseStyles: { [key: string]: CSSProperties } = {
     position: "absolute",
     top: "0.3rem",
     right: "0.5rem",
-    color: "#F8F8F2",
-    cursor: "pointer",
-    background: "transparent",
-    fontWeight: 900,
+    color: "#FF5555",
+    backgroundColor: "transparent",
+    width: "24px",
+    height: "27px",
+    padding: "0px",
   },
   resetButton: {
     position: "absolute",
     top: "0.3rem",
     left: "0.5rem",
-    color: "#F8F8F2",
-    cursor: "pointer",
-    background: "transparent",
-    fontWeight: 900,
+    color: "#50FA7B",
+    backgroundColor: "transparent",
+    width: "24px",
+    height: "27px",
+    padding: "0px",
   },
   container: {
     position: "fixed",
     top: "50%",
     left: "50%",
     transform: "translate(-50%, -50%)",
-    zIndex: 9001,
     backgroundColor: "#282A36",
     color: "#000000",
+    borderRadius: "0.5rem",
     borderStyle: "solid",
     borderColor: "#BD93F9",
     borderWidth: "2px",
-    borderRadius: "0.5rem",
     padding: "1rem",
   },
   flag: {
@@ -43,32 +44,36 @@ const baseStyles: { [key: string]: CSSProperties } = {
     padding: "0.5rem",
     backgroundColor: "#44475A",
     margin: "0.5rem",
-    color: "#F8F8F2",
+    color: "#F1FA8C",
     minWidth: "20rem",
+    borderRadius: "0.5rem",
   },
   buttonEnabled: {
     background: "#BD93F9",
     padding: "0.4rem",
     borderRadius: "0.5rem",
     color: "#44475A",
-    fontWeight: 500,
   },
   buttonDisabled: {
     background: "#FF79C6",
     padding: "0.4rem",
     borderRadius: "0.5rem",
     color: "#44475A",
-    fontWeight: 500,
   },
   header: {
     fontWeight: 700,
     color: "#8BE9FD",
-    top: "-0.6rem",
+    top: "-1.8rem",
     position: "relative",
     marginRight: "1rem",
     marginLeft: "1.5rem",
     width: "10rem",
-  }
+    padding: "0px",
+    marginBottom: "0px",
+  },
+  flagsContainer: {
+    marginTop: "-7%",
+  },
 };
 
 export const formatFeatureName = (name: string): string => {
@@ -98,25 +103,25 @@ const parseStyle = (elementName: string, styleString: string): CSSProperties => 
 };
 
 export const SecretMenu: FC<SecretMenuProps> = ({
-  secretMenu,
+  secretMenu = [],
   toggleFlag,
   flags,
   secretMenuStyles,
   resetFlags,
 }) => {
   const [showMenu, setShowMenu] = useState(false);
-  const [keySequence, setKeySequence] = useState<string[]>([]);
+  const [, setKeySequence] = useState<string[]>([]);
   const { is } = useFlags();
 
   if (typeof secretMenu === "undefined") {
     secretMenu = [];
   }
 
-  const handleToggle = (key: string) => {
+  const handleToggle = useCallback((key: string) => {
     const flag = is(key);
     flag.initialize();
     toggleFlag(key);
-  };
+  }, [is, toggleFlag]);
 
   const styles = useMemo(() => {
     const updatedStyles = { ...baseStyles }
@@ -132,25 +137,22 @@ export const SecretMenu: FC<SecretMenuProps> = ({
     return updatedStyles
   }, [secretMenuStyles])
 
+  const isSequence = useCallback((seq: string[]) => {
+    return seq.length == secretMenu.length && seq.every((key, index) => key === secretMenu[index])
+  }, [secretMenu])
+
   useEffect(() => {
     const keyHandler = (event: KeyboardEvent) => {
-      setKeySequence((seq) => [
-        ...seq.slice(-(secretMenu.length - 1)),
-        event.key,
-      ]);
+      setKeySequence((seq) => {
+        const newSeq = [...seq.slice(-(secretMenu.length - 1)), event.key]
+        setShowMenu(isSequence(newSeq))
+        return newSeq
+      });
     };
 
     document.addEventListener("keydown", keyHandler);
     return () => document.removeEventListener("keydown", keyHandler);
-  }, [secretMenu]); // Depend on secretMenu
-
-  useEffect(() => {
-    if (JSON.stringify(keySequence) === JSON.stringify(secretMenu)) {
-      setShowMenu(true);
-    } else {
-      setShowMenu(false);
-    }
-  }, [keySequence, secretMenu]);
+  }, [secretMenu, isSequence]);
 
   const formattedFlags = useMemo(() => {
     return Object.entries(flags).map(([key, value]) => ({
@@ -169,21 +171,24 @@ export const SecretMenu: FC<SecretMenuProps> = ({
     resetFlags()
   }
 
+  if (!showMenu) { return null }
+  console.info("showMenu isnt null", styles, formattedFlags)
+
   return (
-    showMenu && (
-      <div style={styles.container}>
-        <button style={styles.resetButton} onClick={resetDefaults}><RefreshCcw /></button>
-        <button style={styles.closeButton} onClick={closeMenu}><CircleX /></button>
-        <h1 style={styles.header}>Secret Menu</h1>
+    <div style={styles.container}>
+      <button style={styles.resetButton} onClick={resetDefaults}><RefreshCcw /></button>
+      <button style={styles.closeButton} onClick={closeMenu}><CircleX /></button>
+      <h3 style={styles.header}>Secret Menu</h3>
+      <div style={styles.flagsContainer}>
         {formattedFlags.map(({ key, name, enabled }) => (
           <div key={`sm_item_${key}`} style={styles.flag}>
-            <span>{name}</span>
-            <button onClick={() => handleToggle(key)} style={enabled ? styles.buttonEnabled : styles.buttonDisabled}>
+            <span key={`sm_item_span_${key}`}>{name}</span>
+            <button key={`sm_item_button_${key}`} onClick={() => handleToggle(key)} style={enabled ? styles.buttonEnabled : styles.buttonDisabled}>
               {enabled ? "Enabled" : "Disabled"}
             </button>
           </div>
         ))}
       </div>
-    )
+    </div>
   );
 };
