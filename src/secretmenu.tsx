@@ -62,7 +62,8 @@ const baseStyles: { [key: string]: CSSProperties } = {
   header: {
     fontWeight: 700,
     color: "#8BE9FD",
-    top: "-1.8rem",
+    top: "-.6rem",
+    left: "25%",
     position: "relative",
     marginRight: "1rem",
     marginLeft: "1.5rem",
@@ -71,7 +72,10 @@ const baseStyles: { [key: string]: CSSProperties } = {
     marginBottom: "0px",
   },
   flagsContainer: {
-    marginTop: "-7%",
+    width: "99%",
+  },
+  headerContainer: {
+    width: "99%",
   },
 };
 
