@@ -185,6 +185,16 @@ export const FlagsProvider: FC<FlagsProviderProps> = ({
     return mergedFlags;
   }, [flags, localOverrides]);
 
+  const isFlag = useCallback((flag: string): FlagChecker => ({
+    enabled: () => effectiveFlags[flag]?.enabled ?? false,
+    initialize: () => {
+    },
+    details: effectiveFlags[flag]?.details ?? {
+      name: flag,
+      id: '',
+    }
+  }), [effectiveFlags])
+
   return (
     <SetFlagsContext.Provider value={setFlags}>
       <FlagsContext.Provider value={effectiveFlags}>
@@ -196,6 +206,7 @@ export const FlagsProvider: FC<FlagsProviderProps> = ({
             toggleFlag={toggleFlag}
             secretMenuStyles={secretMenuStyles}
             resetFlags={resetFlags}
+            isFlag={isFlag}
           />
         )}
       </FlagsContext.Provider>

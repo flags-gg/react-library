@@ -46,6 +46,7 @@ export interface SecretMenuProps {
   flags: { [key: string]: Flag };
   toggleFlag: (name: string) => void;
   resetFlags: () => void;
+  isFlag: (flag: string) => FlagChecker;
 }
 
 export interface CacheEntry {
