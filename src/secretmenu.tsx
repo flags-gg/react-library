@@ -1,6 +1,5 @@
 import { CSSProperties, FC, useEffect, useState, useMemo, useCallback } from "react";
 import {SecretMenuProps, SecretMenuStyle} from "./types";
-import { useFlags } from "./";
 import { CircleX, RefreshCcw } from "lucide-react";
 
 const baseStyles: { [key: string]: CSSProperties } = {
@@ -63,7 +62,8 @@ const baseStyles: { [key: string]: CSSProperties } = {
   header: {
     fontWeight: 700,
     color: "#8BE9FD",
-    top: "-1.8rem",
+    top: "-.6rem",
+    left: "25%",
     position: "relative",
     marginRight: "1rem",
     marginLeft: "1.5rem",
@@ -72,7 +72,10 @@ const baseStyles: { [key: string]: CSSProperties } = {
     marginBottom: "0px",
   },
   flagsContainer: {
-    marginTop: "-7%",
+    width: "99%",
+  },
+  headerContainer: {
+    width: "99%",
   },
 };
 
@@ -108,20 +111,20 @@ export const SecretMenu: FC<SecretMenuProps> = ({
   flags,
   secretMenuStyles,
   resetFlags,
+  isFlag,
 }) => {
   const [showMenu, setShowMenu] = useState(false);
   const [, setKeySequence] = useState<string[]>([]);
-  const { is } = useFlags();
 
   if (typeof secretMenu === "undefined") {
     secretMenu = [];
   }
 
   const handleToggle = useCallback((key: string) => {
-    const flag = is(key);
+    const flag = isFlag(key);
     flag.initialize();
     toggleFlag(key);
-  }, [is, toggleFlag]);
+  }, [isFlag, toggleFlag]);
 
   const styles = useMemo(() => {
     const updatedStyles = { ...baseStyles }
@@ -172,13 +175,14 @@ export const SecretMenu: FC<SecretMenuProps> = ({
   }
 
   if (!showMenu) { return null }
-  console.info("showMenu isnt null", styles, formattedFlags)
 
   return (
     <div style={styles.container}>
-      <button style={styles.resetButton} onClick={resetDefaults}><RefreshCcw /></button>
-      <button style={styles.closeButton} onClick={closeMenu}><CircleX /></button>
-      <h3 style={styles.header}>Secret Menu</h3>
+      <div style={styles.headerContainer}>
+        <button style={styles.resetButton} onClick={resetDefaults}><RefreshCcw /></button>
+        <button style={styles.closeButton} onClick={closeMenu}><CircleX /></button>
+        <h3 style={styles.header}>Secret Menu</h3>
+      </div>
       <div style={styles.flagsContainer}>
         {formattedFlags.map(({ key, name, enabled }) => (
           <div key={`sm_item_${key}`} style={styles.flag}>
