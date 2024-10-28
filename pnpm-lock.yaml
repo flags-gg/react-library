@@ -46,8 +46,8 @@ importers:
         specifier: ^8.11.0
         version: 8.11.0(@typescript-eslint/parser@8.11.0(eslint@9.13.0)(typescript@5.6.3))(eslint@9.13.0)(typescript@5.6.3)
       bunchee:
-        specifier: ^5.5.1
-        version: 5.5.1(typescript@5.6.3)
+        specifier: ^5.6.0
+        version: 5.6.0(typescript@5.6.3)
       eslint:
         specifier: ^9.13.0
         version: 9.13.0
@@ -862,9 +862,6 @@ packages:
     resolution: {integrity: sha512-KMReFUr0B4t+D+OBkjR3KYqvocp2XaSzO55UcB6mgQMd3KbcE+mWTyvVV7D/zsdEbNnV6acZUutkiHQXvTr1Rw==}
     engines: {node: '>= 8'}
 
-  arg@5.0.2:
-    resolution: {integrity: sha512-PYjyFOLKQ9y57JvQ6QLo8dAgNqswh8M1RMJYdQduT6xbWSgK36P/Z/v+p888pM69jMMfS8Xd8F6I1kQ/I9HUGg==}
-
   argparse@1.0.10:
     resolution: {integrity: sha512-o5Roy6tNG4SL/FOkCAN6RzjiakZS25RLYFrcMttJqbdd8BWrnA+fGz57iN5Pb06pvBGvl5gQ0B48dJlslXvoTg==}
 
@@ -962,8 +959,8 @@ packages:
     resolution: {integrity: sha512-zhaCDicdLuWN5UbN5IMnFqNMhNfo919sH85y2/ea+5Yg9TsTkeZxpL+JLbp6cgYFS4sRLp3YV4S6yDuqVWHYOw==}
     engines: {node: '>=6'}
 
-  bunchee@5.5.1:
-    resolution: {integrity: sha512-xmUZgf8cOcNPKRSsSovKwenS8eMAyiDzy8JojIUZA1DDhWliWHGbYLVHML20oElWV8Fntm6hazMUdNI5+iflKA==}
+  bunchee@5.6.0:
+    resolution: {integrity: sha512-nUMXSnNUbLO4X3fyO+1RmQInO2vwzDK59Q1TREoVRjHXRKoJkfwTMqrQx4AHbarzlzuHNsviwB9iH6riGu8c9w==}
     engines: {node: '>= 18.0.0'}
     hasBin: true
     peerDependencies:
@@ -3636,8 +3633,6 @@ snapshots:
       normalize-path: 3.0.0
       picomatch: 2.3.1
 
-  arg@5.0.2: {}
-
   argparse@1.0.10:
     dependencies:
       sprintf-js: 1.0.3
@@ -3792,7 +3787,7 @@ snapshots:
 
   builtin-modules@3.3.0: {}
 
-  bunchee@5.5.1(typescript@5.6.3):
+  bunchee@5.6.0(typescript@5.6.3):
     dependencies:
       '@rollup/plugin-commonjs': 28.0.0(rollup@4.24.0)
       '@rollup/plugin-json': 6.1.0(rollup@4.24.0)
@@ -3802,7 +3797,6 @@ snapshots:
       '@rollup/pluginutils': 5.1.0(rollup@4.24.0)
       '@swc/core': 1.7.26(@swc/helpers@0.5.13)
       '@swc/helpers': 0.5.13
-      arg: 5.0.2
       clean-css: 5.3.3
       magic-string: 0.30.11
       ora: 8.1.0
@@ -3812,6 +3806,7 @@ snapshots:
       rollup-plugin-swc3: 0.11.2(@swc/core@1.7.26(@swc/helpers@0.5.13))(rollup@4.24.0)
       rollup-preserve-directives: 1.1.2(rollup@4.24.0)
       tslib: 2.7.0
+      yargs: 17.7.2
     optionalDependencies:
       typescript: 5.6.3
 
