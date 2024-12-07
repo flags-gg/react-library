@@ -33,7 +33,7 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
-      - name: 'Qodana Scan'
+      - name: "Qodana Scan"
         uses: JetBrains/qodana-action@v2023.3
         env:
           QODANA_TOKEN: ${{ secrets.QODANA_TOKEN }}
@@ -42,7 +42,6 @@ jobs:
     permissions:
       pull-requests: write
       contents: write
-    needs: qodana
     steps:
       - name: Check Dependabot Author
         id: check_author
@@ -70,8 +69,7 @@ jobs:
           PR_URL: ${{github.event.pull_request.html_url}}
           GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
   update_release_draft:
-    needs:
-      - qodana
+    needs: automerge
     runs-on: ubuntu-latest
     permissions:
       contents: write
