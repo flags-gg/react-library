@@ -13,6 +13,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          persist-credentials: false
           fetch-depth: 1
       - name: Extract tag
         id: extract_tag
@@ -23,8 +24,8 @@ jobs:
           version: ${{ steps.extract_tag.outputs.tag }}
       - uses: actions/setup-node@v4
         with:
-          node-version: '20.x'
-          registry-url: 'https://registry.npmjs.org'
+          node-version: "20.x"
+          registry-url: "https://registry.npmjs.org"
       - uses: pnpm/action-setup@v3
         with:
           version: 9
@@ -41,6 +42,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          persist-credentials: false
           fetch-depth: 1
       - name: Extract tag
         id: extract_tag
@@ -51,8 +53,8 @@ jobs:
           version: ${{ steps.extract_tag.outputs.tag }}
       - uses: actions/setup-node@v4
         with:
-          node-version: '20.x'
-          registry-url: 'https://npm.chewedfeed.com'
+          node-version: "20.x"
+          registry-url: "https://npm.chewedfeed.com"
       - uses: pnpm/action-setup@v3
         with:
           version: 9
