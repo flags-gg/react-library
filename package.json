@@ -61,7 +61,7 @@
     "eslint-plugin-react": "^7.37.2",
     "eslint-plugin-react-compiler": "0.0.0",
     "extend-expect": "link:@testing-library/jest-dom/extend-expect",
-    "globals": "^15.13.0",
+    "globals": "^15.14.0",
     "identity-obj-proxy": "^3.0.0",
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
