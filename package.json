@@ -74,7 +74,7 @@
   },
   "dependencies": {
     "fast-equals": "^5.0.1",
-    "jotai": "^2.10.4",
+    "jotai": "^2.11.0",
     "lucide-react": "^0.469.0"
   }
 }
