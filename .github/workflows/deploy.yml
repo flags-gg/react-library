@@ -17,7 +17,7 @@ jobs:
           fetch-depth: 1
       - name: Extract tag
         id: extract_tag
-        run: echo "::set-output name=tag::${GITHUB_REF/refs\/tags\//}"
+        run: echo "tag=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_OUTPUT
       - uses: reedyuk/npm-version@1.2.2
         with:
           git-tag-version: false
@@ -46,7 +46,7 @@ jobs:
           fetch-depth: 1
       - name: Extract tag
         id: extract_tag
-        run: echo "::set-output name=tag::${GITHUB_REF/refs\/tags\//}"
+        run: echo "tag=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_OUTPUT
       - uses: reedyuk/npm-version@1.2.2
         with:
           git-tag-version: false
