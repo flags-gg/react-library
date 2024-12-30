@@ -46,8 +46,8 @@ importers:
         specifier: ^8.18.2
         version: 8.18.2(@typescript-eslint/parser@8.18.2(eslint@9.17.0)(typescript@5.7.2))(eslint@9.17.0)(typescript@5.7.2)
       bunchee:
-        specifier: ^6.0.3
-        version: 6.0.3(typescript@5.7.2)
+        specifier: ^6.1.2
+        version: 6.1.2(typescript@5.7.2)
       eslint:
         specifier: ^9.17.0
         version: 9.17.0
@@ -973,8 +973,8 @@ packages:
   buffer-from@1.1.2:
     resolution: {integrity: sha512-E+XQCRwSbaaiChtv6k6Dwgc+bx+Bs6vuKJHHl5kox/BaKbhiXzqQOwK4cO22yElGp2OCmjwVhT3HmxgyPGnJfQ==}
 
-  bunchee@6.0.3:
-    resolution: {integrity: sha512-Yq/srd3ocXPAHv0KEdJvhFMNUOOVVqy0kNzaGVCirk/+MfnLdvZO5uf5BHugIHe/qSvWUQTJZ3SAfB/VABONeQ==}
+  bunchee@6.1.2:
+    resolution: {integrity: sha512-gMVpTmqU25dCG0RNS3mkeul72Qhh6rSrNddTVYgxh1FwJ0ZxUoFPOTKbiZazU+7oho3Po1iaJI/Sha5NBfq0vA==}
     engines: {node: '>= 18.0.0'}
     hasBin: true
     peerDependencies:
@@ -3999,7 +3999,7 @@ snapshots:
 
   buffer-from@1.1.2: {}
 
-  bunchee@6.0.3(typescript@5.7.2):
+  bunchee@6.1.2(typescript@5.7.2):
     dependencies:
       '@rollup/plugin-commonjs': 28.0.1(rollup@4.28.1)
       '@rollup/plugin-json': 6.1.0(rollup@4.28.1)
