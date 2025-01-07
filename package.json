@@ -73,7 +73,7 @@
     "typescript-eslint": "^8.19.0"
   },
   "dependencies": {
-    "fast-equals": "^5.2.0",
+    "fast-equals": "^5.2.1",
     "jotai": "^2.11.0",
     "lucide-react": "^0.469.0"
   }
