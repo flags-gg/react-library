@@ -145,6 +145,7 @@ export const SecretMenu: FC<SecretMenuProps> = ({
   }, [secretMenu])
 
   useEffect(() => {
+    const ac = new AbortController()
     const keyHandler = (event: KeyboardEvent) => {
       setKeySequence((seq) => {
         const newSeq = [...seq.slice(-(secretMenu.length - 1)), event.key]
@@ -153,8 +154,12 @@ export const SecretMenu: FC<SecretMenuProps> = ({
       });
     };
 
-    document.addEventListener("keydown", keyHandler);
-    return () => document.removeEventListener("keydown", keyHandler);
+    document.addEventListener("keydown", keyHandler, {
+      signal: ac.signal,
+    });
+    return () => {
+      ac.abort();
+    }
   }, [secretMenu, isSequence]);
 
   const formattedFlags = useMemo(() => {

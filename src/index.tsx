@@ -91,9 +91,11 @@ export const FlagsProvider: FC<FlagsProviderProps> = ({
     }
 
     try {
+      const ac = new AbortController()
       const response = await fetch(flagsURL, {
         method: "GET",
         headers: headers,
+        signal: ac.signal,
       });
       if (!response.ok) {
         const errorText = await response.text()
@@ -141,6 +143,7 @@ export const FlagsProvider: FC<FlagsProviderProps> = ({
   }, [flagsURL, intervalAllowed, agentId, projectId, environmentId]);
 
   useEffect(() => {
+    const ac = new AbortController()
     const fetchAndSchedule = async () => {
       await fetchFlags()
       if (!initialFetchDoneRef.current) {
@@ -149,8 +152,12 @@ export const FlagsProvider: FC<FlagsProviderProps> = ({
     }
 
     fetchAndSchedule().catch(console.error)
-    const interval = setInterval(fetchAndSchedule, (intervalAllowed * 1000));
-    return () => clearInterval(interval);
+    setInterval(fetchAndSchedule, (intervalAllowed * 1000), {
+      signal: ac.signal,
+    });
+    return () => {
+      ac.abort()
+    }
   }, [fetchFlags, intervalAllowed]);
 
   const toggleFlag = useCallback((flagName: string) => {
