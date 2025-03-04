@@ -57,7 +57,7 @@ export const FlagsProvider: FC<FlagsProviderProps> = ({
   children,
 }) => {
   const {
-    flagsURL = "https://api.flags.gg/v1/flags",
+    flagsURL = "https://api.flags.gg/flags",
     projectId,
     agentId,
     environmentId,
