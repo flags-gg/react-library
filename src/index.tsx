@@ -35,7 +35,7 @@ const defaultFlags: Flags = {
   }
 };
 
-// Contextx
+// Context
 const FlagsContext = createContext<Flags>(defaultFlags);
 const SetFlagsContext = createContext<
   Dispatch<SetStateAction<Flags>> | undefined
@@ -109,7 +109,7 @@ export const FlagsProvider: FC<FlagsProviderProps> = ({
       if (enableLogs) {
         logIt("Flags fetched:", data);
       }
-      setIntervalAllowed(data.intervalAllowed);
+      setIntervalAllowed(data.intervalAllowed ?? 900);
       setSecretMenu(data.secretMenu.sequence);
       setSecretMenuStyles(data.secretMenu.styles);
       const newFlags = data.flags ? data.flags.reduce((acc: Flags, flag: Flag) => ({
