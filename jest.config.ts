@@ -12,7 +12,7 @@ module.exports = {
   moduleFileExtensions: ['js', 'jsx', 'ts', 'tsx', 'json', 'node'],
 
   // The paths to modules that run some code to configure or set up the testing environment
-  setupFilesAfterEnv: ['<rootDir>/setupTests.js'],
+  setupFilesAfterEnv: ['<rootDir>/setupTests.ts'],
 
   // The test path ignore patterns
   testPathIgnorePatterns: ['/node_modules/'],
