@@ -1,6 +1,8 @@
-import { CSSProperties, FC, useEffect, useState, useMemo, useCallback } from "react";
+import {CSSProperties, FC, useEffect, useState, useMemo, useCallback, useRef} from "react";
 import {SecretMenuProps, SecretMenuStyle} from "./types";
-import { CircleX, RefreshCcw } from "lucide-react";
+import {ChevronLeft, ChevronRight, CircleX, RefreshCcw} from "lucide-react";
+
+const flagsPerPage = 5;
 
 const baseStyles: { [key: string]: CSSProperties } = {
   closeButton: {
@@ -106,15 +108,17 @@ const parseStyle = (elementName: string, styleString: string): CSSProperties => 
 };
 
 export const SecretMenu: FC<SecretMenuProps> = ({
-  secretMenu = [],
-  toggleFlag,
-  flags,
-  secretMenuStyles,
-  resetFlags,
-  isFlag,
-}) => {
+                                                  secretMenu = [],
+                                                  toggleFlag,
+                                                  flags,
+                                                  secretMenuStyles,
+                                                  resetFlags,
+                                                  isFlag,
+                                                }) => {
   const [showMenu, setShowMenu] = useState(false);
   const [, setKeySequence] = useState<string[]>([]);
+  const [currentPage, setCurrentPage] = useState(0);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   if (typeof secretMenu === "undefined") {
     secretMenu = [];
@@ -179,17 +183,30 @@ export const SecretMenu: FC<SecretMenuProps> = ({
     resetFlags()
   }
 
+  const totalPages = Math.ceil(formattedFlags.length / flagsPerPage);
+  const paginatedFlags = useMemo(() => {
+    const startIndex = currentPage * flagsPerPage;
+    const endIndex = startIndex + flagsPerPage;
+    return formattedFlags.slice(startIndex, endIndex);
+  }, [currentPage, formattedFlags]);
+  const handleNextPage = () => {
+    setCurrentPage((prev) => Math.min(prev + 1, totalPages - 1));
+  }
+  const handlePreviousPage = () => {
+    setCurrentPage((prev) => Math.max(prev - 1, 0));
+  }
+
   if (!showMenu) { return null }
 
   return (
-    <div style={styles.container}>
+    <div style={styles.container} ref={containerRef}>
       <div style={styles.headerContainer}>
         <button style={styles.resetButton} onClick={resetDefaults}><RefreshCcw /></button>
         <button style={styles.closeButton} onClick={closeMenu}><CircleX /></button>
         <h3 style={styles.header}>Secret Menu</h3>
       </div>
       <div style={styles.flagsContainer}>
-        {formattedFlags.map(({ key, name, enabled }) => (
+        {paginatedFlags.map(({ key, name, enabled }) => (
           <div key={`sm_item_${key}`} style={styles.flag}>
             <span key={`sm_item_span_${key}`}>{name}</span>
             <button key={`sm_item_button_${key}`} onClick={() => handleToggle(key)} style={enabled ? styles.buttonEnabled : styles.buttonDisabled}>
@@ -198,6 +215,29 @@ export const SecretMenu: FC<SecretMenuProps> = ({
           </div>
         ))}
       </div>
+      {totalPages > 1 && (
+        <div style={{ display: "flex", justifyContent: "center", marginTop: "1rem" }}>
+          <button
+            style={{
+              ...styles.buttonEnabled,
+              marginRight: "0.5rem",
+              visibility: currentPage > 0 ? "visible" : "hidden",
+            }}
+            onClick={handlePreviousPage}
+          >
+            <ChevronLeft />
+          </button>
+          <button
+            style={{
+              ...styles.buttonEnabled,
+              visibility: currentPage < totalPages - 1 ? "visible" : "hidden",
+            }}
+            onClick={handleNextPage}
+          >
+            <ChevronRight />
+          </button>
+        </div>
+      )}
     </div>
   );
 };
