@@ -60,7 +60,7 @@
     "bunchee": "^6.5.0",
     "eslint": "^9.24.0",
     "eslint-plugin-react": "^7.37.5",
-    "eslint-plugin-react-compiler": "19.0.0-beta-e993439-20250405",
+    "eslint-plugin-react-compiler": "19.0.0-beta-ebf51a3-20250411",
     "extend-expect": "link:@testing-library/jest-dom/extend-expect",
     "globals": "^16.0.0",
     "identity-obj-proxy": "^3.0.0",
