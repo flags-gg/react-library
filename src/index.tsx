@@ -46,8 +46,8 @@ const localFlagSettings = atomWithStorage<Flags>("localFlags", {})
 
 const logIt = (...message: unknown[]) => {
   try {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-explicit-any
-    const bugfixes = (window as any)?.bugfixes || require("bugfixes")
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const bugfixes = (window as any)?.bugfixes
     if (bugfixes && typeof bugfixes.log === "function") {
       bugfixes.log(["flags.gg library", ...message])
     } else {
@@ -276,6 +276,6 @@ export const useFlags = () => {
   return {
     toggle,
     is,
-    initialize:(flag: string, df: boolean = false) => is(flag).initialize(df)
+    initialize,
   };
 };
