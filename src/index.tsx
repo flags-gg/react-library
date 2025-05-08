@@ -200,6 +200,7 @@ export const FlagsProvider: FC<FlagsProviderProps> = ({
 
   const isFlag = useCallback((flag: string): FlagChecker => ({
     enabled: () => effectiveFlags[flag]?.enabled ?? false,
+    disabled: () => !(effectiveFlags[flag]?.enabled ?? true),
     initialize: () => {
     },
     details: effectiveFlags[flag]?.details ?? {
@@ -266,6 +267,7 @@ export const useFlags = () => {
 
   const is = useCallback((flag: string): FlagChecker => ({
     enabled: () => flags[flag]?.enabled ?? false,
+    disabled: () => !(flags[flag]?.enabled ?? true),
     initialize: (defaultValue:boolean = false) => initialize(flag, defaultValue),
     details: flags[flag]?.details ?? {
       name: flag,

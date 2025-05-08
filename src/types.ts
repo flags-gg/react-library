@@ -61,5 +61,6 @@ export interface ExtendsCSSProperties extends CSSProperties {
 
 export type FlagChecker = Omit<Flag, 'enabled'> & {
   enabled: () => boolean;
+  disabled: () => boolean;
   initialize: (defaultValue?: boolean) => void;
 }
