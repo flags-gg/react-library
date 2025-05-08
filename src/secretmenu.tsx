@@ -14,6 +14,7 @@ const baseStyles: { [key: string]: CSSProperties } = {
     width: "24px",
     height: "27px",
     padding: "0px",
+    cursor: "pointer",
   },
   resetButton: {
     position: "absolute",
@@ -24,6 +25,7 @@ const baseStyles: { [key: string]: CSSProperties } = {
     width: "24px",
     height: "27px",
     padding: "0px",
+    cursor: "pointer",
   },
   container: {
     position: "fixed",
@@ -54,12 +56,14 @@ const baseStyles: { [key: string]: CSSProperties } = {
     padding: "0.4rem",
     borderRadius: "0.5rem",
     color: "#44475A",
+    cursor: "pointer",
   },
   buttonDisabled: {
     background: "#FF79C6",
     padding: "0.4rem",
     borderRadius: "0.5rem",
     color: "#44475A",
+    cursor: "pointer",
   },
   header: {
     fontWeight: 700,
