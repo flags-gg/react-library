@@ -276,6 +276,6 @@ export const useFlags = () => {
   return {
     toggle,
     is,
-    initialize:(flag: string, df: boolean = false) => is(flag).initialize(df)
+    initialize,
   };
 };
