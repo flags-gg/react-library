@@ -45,11 +45,16 @@ const SetFlagsContext = createContext<
 const localFlagSettings = atomWithStorage<Flags>("localFlags", {})
 
 const logIt = (...message: unknown[]) => {
-  console.log.apply(console, [
-    "Flags.gg",
-    new Date().toISOString(),
-    ...message,
-  ]);
+  try {
+    const bugfixes = (window as any)?.bugfixes || require("bugfixes")
+    if (bugfixes && typeof bugfixes.log === "function") {
+      bugfixes.log(["flags.gg library", ...message])
+    } else {
+      console.log.apply(console, ["Flags.gg", new Date().toISOString(), ...message])
+    }
+  } catch {
+    console.log.apply(console, ["Flags.gg", new Date().toISOString(), ...message])
+  }
 };
 
 export const FlagsProvider: FC<FlagsProviderProps> = ({
@@ -258,15 +263,18 @@ export const useFlags = () => {
     }
   }, [flags, setFlags])
 
+  const is = useCallback((flag: string): FlagChecker => ({
+    enabled: () => flags[flag]?.enabled ?? false,
+    initialize: (defaultValue:boolean = false) => initialize(flag, defaultValue),
+    details: flags[flag]?.details ?? {
+      name: flag,
+      id: "",
+    }
+  }), [flags, initialize]);
+
   return {
     toggle,
-    is: (flag: string): FlagChecker => ({
-      enabled: () => flags[flag]?.enabled ?? false,
-      initialize: (defaultValue = false) => initialize(flag, defaultValue),
-      details: flags[flag]?.details ?? {
-        name: flag,
-        id: '',
-      }
-    }),
+    is,
+    initialize:(flag: string, df: boolean = false) => is(flag).initialize(df)
   };
 };
