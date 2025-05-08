@@ -266,6 +266,7 @@ export const useFlags = () => {
 
   const is = useCallback((flag: string): FlagChecker => ({
     enabled: () => flags[flag]?.enabled ?? false,
+    disabled: () => !(flags[flag]?.enabled ?? true),
     initialize: (defaultValue:boolean = false) => initialize(flag, defaultValue),
     details: flags[flag]?.details ?? {
       name: flag,
