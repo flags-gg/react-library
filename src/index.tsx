@@ -46,6 +46,7 @@ const localFlagSettings = atomWithStorage<Flags>("localFlags", {})
 
 const logIt = (...message: unknown[]) => {
   try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-explicit-any
     const bugfixes = (window as any)?.bugfixes || require("bugfixes")
     if (bugfixes && typeof bugfixes.log === "function") {
       bugfixes.log(["flags.gg library", ...message])
