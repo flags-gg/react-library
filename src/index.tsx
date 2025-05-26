@@ -158,12 +158,16 @@ export const FlagsProvider: FC<FlagsProviderProps> = ({
     }
 
     fetchAndSchedule().catch(console.error)
-    setInterval(fetchAndSchedule, (intervalAllowed * 1000), {
-      signal: ac.signal,
-    });
+    const intervalDuration = (intervalAllowed || 900) * 1000;
+    const intervalId = setInterval(() => {
+      fetchAndSchedule().catch(console.error);
+    }, intervalDuration);
+
+    // Cleanup function clears the interval and aborts fetch
     return () => {
-      ac.abort()
-    }
+      clearInterval(intervalId);
+      ac.abort();
+    };
   }, [fetchFlags, intervalAllowed]);
 
   const toggleFlag = useCallback((flagName: string) => {
