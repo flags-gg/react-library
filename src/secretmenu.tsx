@@ -1,6 +1,7 @@
 import {CSSProperties, FC, useEffect, useState, useMemo, useCallback, useRef} from "react";
 import {SecretMenuProps, SecretMenuStyle} from "./types";
 import {ChevronLeft, ChevronRight, CircleX, RefreshCcw} from "lucide-react";
+import { withErrorBoundary } from "./ErrorBoundary";
 
 const flagsPerPage = 5;
 
@@ -98,7 +99,15 @@ export const formatFeatureName = (name: string): string => {
 
 const parseStyle = (elementName: string, styleString: string): CSSProperties => {
   try {
+    if (!styleString || typeof styleString !== 'string') {
+      console.warn(`Invalid style string for ${elementName}`);
+      return {};
+    }
     const styleObject = JSON.parse(styleString);
+    if (!styleObject || typeof styleObject !== 'object') {
+      console.warn(`Invalid style object for ${elementName}`);
+      return {};
+    }
     return Object.fromEntries(
       Object.entries(styleObject).map(([key, value]) => [
         key.replace(/([-_][a-z])/g, (group) => group.toUpperCase().replace('-', '').replace('_', '')),
@@ -111,7 +120,7 @@ const parseStyle = (elementName: string, styleString: string): CSSProperties => 
   }
 };
 
-export const SecretMenu: FC<SecretMenuProps> = ({
+const SecretMenuInner: FC<SecretMenuProps> = ({
                                                   secretMenu = [],
                                                   toggleFlag,
                                                   flags,
@@ -129,9 +138,13 @@ export const SecretMenu: FC<SecretMenuProps> = ({
   }
 
   const handleToggle = useCallback((key: string) => {
-    const flag = isFlag(key);
-    flag.initialize();
-    toggleFlag(key);
+    try {
+      const flag = isFlag(key);
+      flag.initialize();
+      toggleFlag(key);
+    } catch (error) {
+      console.error(`Error toggling flag ${key}:`, error);
+    }
   }, [isFlag, toggleFlag]);
 
   const styles = useMemo(() => {
@@ -155,18 +168,31 @@ export const SecretMenu: FC<SecretMenuProps> = ({
   useEffect(() => {
     const ac = new AbortController()
     const keyHandler = (event: KeyboardEvent) => {
-      setKeySequence((seq) => {
-        const newSeq = [...seq.slice(-(secretMenu.length - 1)), event.key]
-        setShowMenu(isSequence(newSeq))
-        return newSeq
-      });
+      try {
+        setKeySequence((seq) => {
+          const newSeq = [...seq.slice(-(secretMenu.length - 1)), event.key]
+          setShowMenu(isSequence(newSeq))
+          return newSeq
+        });
+      } catch (error) {
+        console.error('Error in key handler:', error);
+      }
     };
 
-    document.addEventListener("keydown", keyHandler, {
-      signal: ac.signal,
-    });
+    try {
+      document.addEventListener("keydown", keyHandler, {
+        signal: ac.signal,
+      });
+    } catch (error) {
+      console.error('Error adding event listener:', error);
+    }
+    
     return () => {
-      ac.abort();
+      try {
+        ac.abort();
+      } catch (error) {
+        console.error('Error cleaning up event listener:', error);
+      }
     }
   }, [secretMenu, isSequence]);
 
@@ -245,3 +271,11 @@ export const SecretMenu: FC<SecretMenuProps> = ({
     </div>
   );
 };
+
+export const SecretMenu = withErrorBoundary(SecretMenuInner, {
+  fallback: null,
+  isolate: true,
+  onError: (error, errorInfo) => {
+    console.error('SecretMenu Error:', error, errorInfo);
+  }
+});

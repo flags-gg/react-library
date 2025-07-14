@@ -24,6 +24,7 @@ import { SecretMenu } from "./secretmenu";
 import {Cache} from "./cache";
 import { useAtom } from "jotai";
 import { atomWithStorage, RESET } from "jotai/utils";
+import { ErrorBoundary } from "./ErrorBoundary";
 
 const defaultFlags: Flags = {
   dummyFlag: {
@@ -58,7 +59,7 @@ const logIt = (...message: unknown[]) => {
   }
 };
 
-export const FlagsProvider: FC<FlagsProviderProps> = ({
+const FlagsProviderInner: FC<FlagsProviderProps> = ({
   options = {},
   children,
 }) => {
@@ -80,9 +81,16 @@ export const FlagsProvider: FC<FlagsProviderProps> = ({
 
   const fetchFlags = useCallback(async () => {
     const cacheKey = `flags_${projectId}_${agentId}_${environmentId}`;
-    const cachedFlags = cache.getCacheEntry(cacheKey);
-    if (cachedFlags && equal(flags, cachedFlags)) {
-      return;
+    
+    try {
+      const cachedEntry = cache.getCacheEntry(cacheKey);
+      if (cachedEntry && cachedEntry.data && equal(flags, cachedEntry.data)) {
+        return;
+      }
+    } catch (cacheError) {
+      if (enableLogs) {
+        logIt("Cache error:", cacheError);
+      }
     }
 
     const headers = new Headers({
@@ -93,37 +101,94 @@ export const FlagsProvider: FC<FlagsProviderProps> = ({
     });
 
     if (!agentId && !projectId && !environmentId) {
+      if (enableLogs) {
+        logIt("No project, agent, or environment ID provided. Skipping flag fetch.");
+      }
       return
     }
 
+    let response: Response | null = null;
     try {
       const ac = new AbortController()
-      const response = await fetch(flagsURL, {
-        method: "GET",
-        headers: headers,
-        signal: ac.signal,
-      });
-      if (!response.ok) {
-        const errorText = await response.text()
-        if (enableLogs) {
-          logIt(`Error fetching flags, status: ${response.status}: ${errorText}`);
+      const timeoutId = setTimeout(() => ac.abort(), 30000); // 30 second timeout
+      
+      try {
+        response = await fetch(flagsURL, {
+          method: "GET",
+          headers: headers,
+          signal: ac.signal,
+        });
+        clearTimeout(timeoutId);
+      } catch (fetchError) {
+        clearTimeout(timeoutId);
+        if (fetchError instanceof Error) {
+          if (fetchError.name === 'AbortError') {
+            throw new Error('Request timeout: Flag fetch took too long');
+          }
+          throw fetchError;
         }
-        return
+        throw new Error('Unknown fetch error');
       }
       
-      const data: ServerResponse = await response.json();
+      if (!response.ok) {
+        let errorText = '';
+        try {
+          errorText = await response.text();
+        } catch {
+          errorText = 'Unable to read error response';
+        }
+        throw new Error(`HTTP ${response.status}: ${errorText}`);
+      }
+      
+      let data: ServerResponse;
+      try {
+        const responseText = await response.text();
+        if (!responseText) {
+          throw new Error('Empty response from server');
+        }
+        data = JSON.parse(responseText);
+      } catch (parseError) {
+        if (enableLogs) {
+          logIt("JSON parse error:", parseError);
+        }
+        throw new Error('Invalid JSON response from server');
+      }
+      
       if (enableLogs) {
         logIt("Flags fetched:", data);
       }
+      
+      // Validate response structure
+      if (!data || typeof data !== 'object') {
+        throw new Error('Invalid response structure');
+      }
+      
       setIntervalAllowed(data.intervalAllowed ?? 900);
-      setSecretMenu(data.secretMenu.sequence);
-      setSecretMenuStyles(data.secretMenu.styles);
-      const newFlags = data.flags ? data.flags.reduce((acc: Flags, flag: Flag) => ({
-        ...acc,
-        [flag.details.name]: flag,
-      }), {}) : {};
+      
+      if (data.secretMenu) {
+        setSecretMenu(data.secretMenu.sequence || []);
+        setSecretMenuStyles(data.secretMenu.styles || []);
+      }
+      
+      const newFlags = data.flags ? data.flags.reduce((acc: Flags, flag: Flag) => {
+        if (flag && flag.details && flag.details.name) {
+          return {
+            ...acc,
+            [flag.details.name]: flag,
+          };
+        }
+        return acc;
+      }, {}) : {};
+      
       if (!equal(flags, newFlags)) {
-        cache.setCacheEntry(cacheKey, newFlags, (intervalAllowed * 2000));
+        try {
+          cache.setCacheEntry(cacheKey, newFlags, (intervalAllowed * 2000));
+        } catch (cacheError) {
+          if (enableLogs) {
+            logIt("Failed to cache flags:", cacheError);
+          }
+        }
+        
         setFlags((prevFlags) => {
           const updatedFlags = { ...prevFlags };
           let shouldUpdate = false;
@@ -143,10 +208,24 @@ export const FlagsProvider: FC<FlagsProviderProps> = ({
       }
     } catch (error) {
       if (enableLogs) {
-        logIt("Error fetching flags:", error);
+        logIt("Error fetching flags:", error instanceof Error ? error.message : error);
+      }
+      // Use cached flags if available
+      try {
+        const cachedEntry = cache.getCacheEntry(cacheKey);
+        if (cachedEntry && cachedEntry.data && !equal(flags, cachedEntry.data)) {
+          setFlags(cachedEntry.data);
+          if (enableLogs) {
+            logIt("Using cached flags due to fetch error");
+          }
+        }
+      } catch (cacheError) {
+        if (enableLogs) {
+          logIt("Failed to retrieve cached flags:", cacheError);
+        }
       }
     }
-  }, [flagsURL, intervalAllowed, agentId, projectId, environmentId]);
+  }, [flagsURL, intervalAllowed, agentId, projectId, environmentId, enableLogs, cache, flags, localOverrides, setFlags]);
 
   useEffect(() => {
     const ac = new AbortController()
@@ -232,6 +311,21 @@ export const FlagsProvider: FC<FlagsProviderProps> = ({
   );
 };
 
+export const FlagsProvider: FC<FlagsProviderProps> = (props) => {
+  return (
+    <ErrorBoundary 
+      fallback={
+        <div>Feature flags system encountered an error. Using default values.</div>
+      }
+      onError={(error, errorInfo) => {
+        console.error('FlagsProvider Error:', error, errorInfo);
+      }}
+    >
+      <FlagsProviderInner {...props} />
+    </ErrorBoundary>
+  );
+};
+
 export const useFlags = () => {
   const flags = useContext(FlagsContext);
   const setFlags = useContext(SetFlagsContext);
@@ -285,3 +379,5 @@ export const useFlags = () => {
     initialize,
   };
 };
+
+export { ErrorBoundary, withErrorBoundary } from './ErrorBoundary';
