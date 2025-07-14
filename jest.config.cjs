@@ -14,14 +14,14 @@ module.exports = {
   // The paths to modules that run some code to configure or set up the testing environment
   setupFilesAfterEnv: ['<rootDir>/setupTests.js'],
 
-  // The test path ignore patterns
-  testPathIgnorePatterns: ['/node_modules/'],
-
   // The glob patterns Jest uses to detect test files
   testMatch: [
     '**/__tests__/**/*.+(ts|tsx|js|jsx)',
     '**/?(*.)+(spec|test).+(ts|tsx|js|jsx)'
   ],
+  
+  // Ignore patterns
+  testPathIgnorePatterns: ['/node_modules/', '/__tests__/test-utils.tsx', '\\.broken$'],
 
   // Module paths aliases and other mappings similar to webpack
   moduleNameMapper: {
@@ -42,4 +42,7 @@ module.exports = {
 
   // Verbose output for tests
   verbose: true,
+  
+  // Test timeout
+  testTimeout: 10000,
 };

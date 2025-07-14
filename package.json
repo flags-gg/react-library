@@ -3,7 +3,10 @@
   "version": "99.9.9",
   "type": "module",
   "scripts": {
-    "test": "pnpm lint && pnpm typecheck",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:ci": "pnpm lint && pnpm typecheck && pnpm test:coverage",
     "lint": "eslint src",
     "typecheck": "tsc",
     "build": "bunchee --tsconfig tsconfig.build.json"
@@ -47,6 +50,10 @@
     "react-dom": "^18.0.0 || ^19.0.0"
   },
   "devDependencies": {
+    "@babel/core": "^7.28.0",
+    "@babel/preset-env": "^7.28.0",
+    "@babel/preset-react": "^7.27.1",
+    "@babel/preset-typescript": "^7.27.1",
     "@eslint/js": "^9.31.0",
     "@jest/globals": "^29.7.0",
     "@testing-library/jest-dom": "^6.6.3",
@@ -57,6 +64,7 @@
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
     "@typescript-eslint/eslint-plugin": "^8.36.0",
+    "babel-jest": "^30.0.4",
     "bunchee": "^6.5.4",
     "eslint": "^9.31.0",
     "eslint-plugin-react": "^7.37.5",
