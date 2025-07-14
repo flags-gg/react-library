@@ -283,7 +283,7 @@ const FlagsProviderInner: FC<FlagsProviderProps> = ({
 
   const isFlag = useCallback((flag: string): FlagChecker => ({
     enabled: () => effectiveFlags[flag]?.enabled ?? false,
-    disabled: () => !(effectiveFlags[flag]?.enabled ?? true),
+    disabled: () => !(effectiveFlags[flag]?.enabled ?? false),
     initialize: () => {
     },
     details: effectiveFlags[flag]?.details ?? {
@@ -330,7 +330,7 @@ export const useFlags = () => {
   const flags = useContext(FlagsContext);
   const setFlags = useContext(SetFlagsContext);
 
-  if (!flags || !setFlags) {
+  if (!setFlags) {
     throw new Error("useFlags must be inside a FlagsContext.Provider")
   }
 
@@ -365,7 +365,7 @@ export const useFlags = () => {
 
   const is = useCallback((flag: string): FlagChecker => ({
     enabled: () => flags[flag]?.enabled ?? false,
-    disabled: () => !(flags[flag]?.enabled ?? true),
+    disabled: () => !(flags[flag]?.enabled ?? false),
     initialize: (defaultValue:boolean = false) => initialize(flag, defaultValue),
     details: flags[flag]?.details ?? {
       name: flag,
@@ -381,3 +381,6 @@ export const useFlags = () => {
 };
 
 export { ErrorBoundary, withErrorBoundary } from './ErrorBoundary';
+
+// Export contexts for testing
+export { FlagsContext, SetFlagsContext };

@@ -90,6 +90,7 @@ export const formatFeatureName = (name: string): string => {
   return name
     .replace(/([a-z])([A-Z0-9])/g, "$1 $2")
     .replace(/([0-9])([A-Z])/g, "$1 $2")
+    .replace(/([0-9])([a-z])/g, "$1 $2")
     .replace(/([A-Z]+)([A-Z][a-z])/g, "$1 $2")
     .trim()
     .split(" ")
