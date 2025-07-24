@@ -78,6 +78,7 @@ const FlagsProviderInner: FC<FlagsProviderProps> = ({
   const [secretMenuStyles, setSecretMenuStyles] = useState<SecretMenuStyle[]>([]);
   const cache = new Cache();
   const initialFetchDoneRef = useRef(false)
+  const intervalAllowedRef = useRef(60);
 
   const fetchFlags = useCallback(async () => {
     const cacheKey = `flags_${projectId}_${agentId}_${environmentId}`;
@@ -163,7 +164,9 @@ const FlagsProviderInner: FC<FlagsProviderProps> = ({
         throw new Error('Invalid response structure');
       }
       
-      setIntervalAllowed(data.intervalAllowed ?? 900);
+      const newInterval = data.intervalAllowed ?? 900;
+      setIntervalAllowed(newInterval);
+      intervalAllowedRef.current = newInterval;
       
       if (data.secretMenu) {
         setSecretMenu(data.secretMenu.sequence || []);
@@ -182,7 +185,7 @@ const FlagsProviderInner: FC<FlagsProviderProps> = ({
       
       if (!equal(flags, newFlags)) {
         try {
-          cache.setCacheEntry(cacheKey, newFlags, (intervalAllowed * 2000));
+          cache.setCacheEntry(cacheKey, newFlags, (intervalAllowedRef.current * 1000));
         } catch (cacheError) {
           if (enableLogs) {
             logIt("Failed to cache flags:", cacheError);
@@ -227,27 +230,66 @@ const FlagsProviderInner: FC<FlagsProviderProps> = ({
     }
   }, [flagsURL, intervalAllowed, agentId, projectId, environmentId, enableLogs, cache, flags, localOverrides, setFlags]);
 
+  // Initial fetch effect
   useEffect(() => {
     const ac = new AbortController()
-    const fetchAndSchedule = async () => {
+    const initialFetch = async () => {
       await fetchFlags()
       if (!initialFetchDoneRef.current) {
         initialFetchDoneRef.current = true
       }
     }
 
-    fetchAndSchedule().catch(console.error)
-    const intervalDuration = (intervalAllowed || 900) * 1000;
-    const intervalId = setInterval(() => {
-      fetchAndSchedule().catch(console.error);
-    }, intervalDuration);
+    initialFetch().catch(console.error)
 
-    // Cleanup function clears the interval and aborts fetch
     return () => {
-      clearInterval(intervalId);
       ac.abort();
     };
-  }, [fetchFlags, intervalAllowed]);
+  }, [fetchFlags]);
+
+  // Interval effect - separate to avoid re-creating when intervalAllowed changes
+  useEffect(() => {
+    let intervalId: NodeJS.Timeout | null = null;
+    
+    const startInterval = () => {
+      // Clear any existing interval
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
+      
+      const intervalDuration = (intervalAllowedRef.current || 900) * 1000;
+      intervalId = setInterval(() => {
+        fetchFlags().catch(console.error);
+      }, intervalDuration);
+    };
+
+    // Start the interval after initial fetch is done
+    if (initialFetchDoneRef.current) {
+      startInterval();
+    } else {
+      // Wait for initial fetch to complete
+      const checkInterval = setInterval(() => {
+        if (initialFetchDoneRef.current) {
+          clearInterval(checkInterval);
+          startInterval();
+        }
+      }, 100);
+      
+      return () => {
+        clearInterval(checkInterval);
+        if (intervalId) {
+          clearInterval(intervalId);
+        }
+      };
+    }
+
+    // Cleanup function
+    return () => {
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
+    };
+  }, [fetchFlags]);
 
   const toggleFlag = useCallback((flagName: string) => {
     setLocalOverrides(prevOverrides => {
