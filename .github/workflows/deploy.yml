@@ -15,13 +15,14 @@ jobs:
         with:
           persist-credentials: false
           fetch-depth: 1
-      - name: Extract tag
-        id: extract_tag
-        run: echo "tag=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_OUTPUT
-      - uses: reedyuk/npm-version@1.2.2
-        with:
-          git-tag-version: false
-          version: ${{ steps.extract_tag.outputs.tag }}
+#      - name: Extract tag
+#        id: extract_tag
+#        run: echo "tag=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_OUTPUT
+#      - uses: reedyuk/npm-version@1.2.2
+#        with:
+#          git-tag-version: false
+#          version: ${{ steps.extract_tag.outputs.tag }}
+      - uses: keloran/version-bump@v1
       - uses: actions/setup-node@v4
         with:
           node-version: "20.x"
