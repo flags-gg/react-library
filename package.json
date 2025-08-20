@@ -63,7 +63,7 @@
     "@types/node": "^24.3.0",
     "@types/react": "^19.1.7",
     "@types/react-dom": "^19.1.7",
-    "@typescript-eslint/eslint-plugin": "^8.39.1",
+    "@typescript-eslint/eslint-plugin": "^8.40.0",
     "babel-jest": "^30.0.5",
     "bunchee": "^6.6.0",
     "eslint": "^9.33.0",
