@@ -72,13 +72,14 @@ const FlagsProviderInner: FC<FlagsProviderProps> = ({
   } = options;
 
   const [flags, setFlags] = useState<Flags>({});
-  const [intervalAllowed, setIntervalAllowed] = useState(60);
+  const [intervalAllowed, setIntervalAllowed] = useState(900); // Default to 900s fallback
   const [secretMenu, setSecretMenu] = useState<string[]>([]);
   const [localOverrides, setLocalOverrides] = useAtom(localFlagSettings);
   const [secretMenuStyles, setSecretMenuStyles] = useState<SecretMenuStyle[]>([]);
   const cache = new Cache();
   const initialFetchDoneRef = useRef(false)
-  const intervalAllowedRef = useRef(60);
+  const intervalAllowedRef = useRef(900); // Default to 900s fallback
+  const intervalIdRef = useRef<NodeJS.Timeout | null>(null);
 
   const fetchFlags = useCallback(async () => {
     const cacheKey = `flags_${projectId}_${agentId}_${environmentId}`;
@@ -164,9 +165,11 @@ const FlagsProviderInner: FC<FlagsProviderProps> = ({
         throw new Error('Invalid response structure');
       }
       
-      const newInterval = data.intervalAllowed ?? 900;
-      setIntervalAllowed(newInterval);
-      intervalAllowedRef.current = newInterval;
+      const newInterval = data.intervalAllowed ?? 60; // Use 60s if server provides it
+      if (newInterval !== intervalAllowedRef.current) {
+        setIntervalAllowed(newInterval);
+        intervalAllowedRef.current = newInterval;
+      }
       
       if (data.secretMenu) {
         setSecretMenu(data.secretMenu.sequence || []);
@@ -228,7 +231,7 @@ const FlagsProviderInner: FC<FlagsProviderProps> = ({
         }
       }
     }
-  }, [flagsURL, intervalAllowed, agentId, projectId, environmentId, enableLogs, cache, flags, localOverrides, setFlags]);
+  }, [flagsURL, agentId, projectId, environmentId, enableLogs, cache, flags, localOverrides, setFlags]);
 
   // Initial fetch effect
   useEffect(() => {
@@ -247,49 +250,48 @@ const FlagsProviderInner: FC<FlagsProviderProps> = ({
     };
   }, [fetchFlags]);
 
-  // Interval effect - separate to avoid re-creating when intervalAllowed changes
+  // Interval effect - responds to intervalAllowed changes
   useEffect(() => {
-    let intervalId: NodeJS.Timeout | null = null;
-    
-    const startInterval = () => {
-      // Clear any existing interval
-      if (intervalId) {
-        clearInterval(intervalId);
-      }
-      
-      const intervalDuration = (intervalAllowedRef.current || 900) * 1000;
-      intervalId = setInterval(() => {
-        fetchFlags().catch(console.error);
-      }, intervalDuration);
-    };
+    // Clear any existing interval
+    if (intervalIdRef.current) {
+      clearInterval(intervalIdRef.current);
+      intervalIdRef.current = null;
+    }
 
-    // Start the interval after initial fetch is done
-    if (initialFetchDoneRef.current) {
-      startInterval();
-    } else {
-      // Wait for initial fetch to complete
-      const checkInterval = setInterval(() => {
-        if (initialFetchDoneRef.current) {
-          clearInterval(checkInterval);
-          startInterval();
-        }
-      }, 100);
-      
+    // Only start interval after initial fetch is done
+    if (!initialFetchDoneRef.current) {
+      // Still return cleanup function even if not starting interval yet
       return () => {
-        clearInterval(checkInterval);
-        if (intervalId) {
-          clearInterval(intervalId);
+        if (intervalIdRef.current) {
+          clearInterval(intervalIdRef.current);
+          intervalIdRef.current = null;
         }
       };
     }
 
+    // Start new interval with current intervalAllowed value
+    // Always use intervalAllowed which defaults to 900s if server fails
+    const intervalDuration = intervalAllowed * 1000;
+    if (enableLogs) {
+      logIt(`Setting up interval with duration: ${intervalDuration}ms (${intervalAllowed}s)`);
+    }
+    
+    intervalIdRef.current = setInterval(() => {
+      fetchFlags().catch((error) => {
+        if (enableLogs) {
+          logIt("Interval fetch error, will retry in next interval:", error);
+        }
+      });
+    }, intervalDuration);
+
     // Cleanup function
     return () => {
-      if (intervalId) {
-        clearInterval(intervalId);
+      if (intervalIdRef.current) {
+        clearInterval(intervalIdRef.current);
+        intervalIdRef.current = null;
       }
     };
-  }, [fetchFlags]);
+  }, [intervalAllowed, initialFetchDoneRef.current, fetchFlags, enableLogs]);
 
   const toggleFlag = useCallback((flagName: string) => {
     setLocalOverrides(prevOverrides => {
