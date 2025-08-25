@@ -260,7 +260,13 @@ const FlagsProviderInner: FC<FlagsProviderProps> = ({
 
     // Only start interval after initial fetch is done
     if (!initialFetchDoneRef.current) {
-      return;
+      // Still return cleanup function even if not starting interval yet
+      return () => {
+        if (intervalIdRef.current) {
+          clearInterval(intervalIdRef.current);
+          intervalIdRef.current = null;
+        }
+      };
     }
 
     // Start new interval with current intervalAllowed value

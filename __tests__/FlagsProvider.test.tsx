@@ -296,6 +296,7 @@ describe('FlagsProvider', () => {
     it('should clean up interval on unmount', async () => {
       jest.useFakeTimers();
       const clearIntervalSpy = jest.spyOn(global, 'clearInterval');
+      const setIntervalSpy = jest.spyOn(global, 'setInterval');
       setupFetchMock();
 
       const { unmount } = render(
@@ -306,6 +307,11 @@ describe('FlagsProvider', () => {
 
       await waitFor(() => {
         expect(global.fetch).toHaveBeenCalled();
+      });
+
+      // Wait for the interval to be set up after initial fetch
+      await waitFor(() => {
+        expect(setIntervalSpy).toHaveBeenCalled();
       });
 
       unmount();
