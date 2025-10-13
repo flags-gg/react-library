@@ -16,11 +16,9 @@ jobs:
         with:
           persist-credentials: false
           fetch-depth: 1
-      - uses: pnpm/action-setup@v3
-        with:
-          version: 9
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm test:ci
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+      - run: bun test:ci
 #  qodana:
 #    runs-on: ubuntu-latest
 #    needs: test
