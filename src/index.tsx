@@ -77,9 +77,9 @@ const FlagsProviderInner: FC<FlagsProviderProps> = ({
   const [localOverrides, setLocalOverrides] = useAtom(localFlagSettings);
   const [secretMenuStyles, setSecretMenuStyles] = useState<SecretMenuStyle[]>([]);
   const cache = new Cache();
-  const initialFetchDoneRef = useRef(false)
   const intervalAllowedRef = useRef(900); // Default to 900s fallback
   const intervalIdRef = useRef<NodeJS.Timeout | null>(null);
+  const fetchFlagsRef = useRef<() => Promise<void>>(async () => {})
 
   const fetchFlags = useCallback(async () => {
     const cacheKey = `flags_${projectId}_${agentId}_${environmentId}`;
@@ -169,6 +169,23 @@ const FlagsProviderInner: FC<FlagsProviderProps> = ({
       if (newInterval !== intervalAllowedRef.current) {
         setIntervalAllowed(newInterval);
         intervalAllowedRef.current = newInterval;
+        // Reconfigure the polling interval immediately to avoid waiting for the effect tick
+        const intervalDuration = newInterval * 1000;
+        if (intervalIdRef.current) {
+          clearInterval(intervalIdRef.current);
+          intervalIdRef.current = null;
+        }
+        if (enableLogs) {
+          logIt(`Reconfiguring interval immediately to: ${intervalDuration}ms (${newInterval}s)`);
+        }
+        intervalIdRef.current = setInterval(() => {
+          fetchFlagsRef.current()
+            .catch((error) => {
+              if (enableLogs) {
+                logIt("Interval fetch error, will retry in next interval:", error);
+              }
+            });
+        }, intervalDuration);
       }
       
       if (data.secretMenu) {
@@ -233,22 +250,30 @@ const FlagsProviderInner: FC<FlagsProviderProps> = ({
     }
   }, [flagsURL, agentId, projectId, environmentId, enableLogs, cache, flags, localOverrides, setFlags]);
 
+  // Keep a stable ref to the latest fetchFlags to avoid effect re-creations
+  useEffect(() => {
+    fetchFlagsRef.current = fetchFlags
+  }, [fetchFlags])
+
   // Initial fetch effect
   useEffect(() => {
     const ac = new AbortController()
-    const initialFetch = async () => {
-      await fetchFlags()
-      if (!initialFetchDoneRef.current) {
-        initialFetchDoneRef.current = true
+    const run = async () => {
+      try {
+        await fetchFlagsRef.current()
+      } catch (e) {
+        if (enableLogs) {
+          logIt("Initial fetch failed:", e)
+        }
       }
     }
 
-    initialFetch().catch(console.error)
+    run().catch(() => {})
 
     return () => {
       ac.abort();
     };
-  }, [fetchFlags]);
+  }, [enableLogs]);
 
   // Interval effect - responds to intervalAllowed changes
   useEffect(() => {
@@ -256,17 +281,6 @@ const FlagsProviderInner: FC<FlagsProviderProps> = ({
     if (intervalIdRef.current) {
       clearInterval(intervalIdRef.current);
       intervalIdRef.current = null;
-    }
-
-    // Only start interval after initial fetch is done
-    if (!initialFetchDoneRef.current) {
-      // Still return cleanup function even if not starting interval yet
-      return () => {
-        if (intervalIdRef.current) {
-          clearInterval(intervalIdRef.current);
-          intervalIdRef.current = null;
-        }
-      };
     }
 
     // Start new interval with current intervalAllowed value
@@ -277,11 +291,12 @@ const FlagsProviderInner: FC<FlagsProviderProps> = ({
     }
     
     intervalIdRef.current = setInterval(() => {
-      fetchFlags().catch((error) => {
-        if (enableLogs) {
-          logIt("Interval fetch error, will retry in next interval:", error);
-        }
-      });
+      fetchFlagsRef.current()
+        .catch((error) => {
+          if (enableLogs) {
+            logIt("Interval fetch error, will retry in next interval:", error);
+          }
+        });
     }, intervalDuration);
 
     // Cleanup function
@@ -291,7 +306,7 @@ const FlagsProviderInner: FC<FlagsProviderProps> = ({
         intervalIdRef.current = null;
       }
     };
-  }, [intervalAllowed, initialFetchDoneRef.current, fetchFlags, enableLogs]);
+  }, [intervalAllowed, enableLogs]);
 
   const toggleFlag = useCallback((flagName: string) => {
     setLocalOverrides(prevOverrides => {
