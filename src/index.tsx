@@ -77,8 +77,6 @@ const FlagsProviderInner: FC<FlagsProviderProps> = ({
   const [localOverrides, setLocalOverrides] = useAtom(localFlagSettings);
   const [secretMenuStyles, setSecretMenuStyles] = useState<SecretMenuStyle[]>([]);
   const cache = new Cache();
-  const [initialFetchDone, setInitialFetchDone] = useState(false)
-  const initialFetchDoneRef = useRef(false)
   const intervalAllowedRef = useRef(900); // Default to 900s fallback
   const intervalIdRef = useRef<NodeJS.Timeout | null>(null);
   const fetchFlagsRef = useRef<() => Promise<void>>(async () => {})
@@ -171,6 +169,23 @@ const FlagsProviderInner: FC<FlagsProviderProps> = ({
       if (newInterval !== intervalAllowedRef.current) {
         setIntervalAllowed(newInterval);
         intervalAllowedRef.current = newInterval;
+        // Reconfigure the polling interval immediately to avoid waiting for the effect tick
+        const intervalDuration = newInterval * 1000;
+        if (intervalIdRef.current) {
+          clearInterval(intervalIdRef.current);
+          intervalIdRef.current = null;
+        }
+        if (enableLogs) {
+          logIt(`Reconfiguring interval immediately to: ${intervalDuration}ms (${newInterval}s)`);
+        }
+        intervalIdRef.current = setInterval(() => {
+          fetchFlagsRef.current()
+            .catch((error) => {
+              if (enableLogs) {
+                logIt("Interval fetch error, will retry in next interval:", error);
+              }
+            });
+        }, intervalDuration);
       }
       
       if (data.secretMenu) {
@@ -246,10 +261,6 @@ const FlagsProviderInner: FC<FlagsProviderProps> = ({
     const run = async () => {
       try {
         await fetchFlagsRef.current()
-        if (!initialFetchDoneRef.current) {
-          initialFetchDoneRef.current = true
-          setInitialFetchDone(true)
-        }
       } catch (e) {
         if (enableLogs) {
           logIt("Initial fetch failed:", e)
@@ -270,17 +281,6 @@ const FlagsProviderInner: FC<FlagsProviderProps> = ({
     if (intervalIdRef.current) {
       clearInterval(intervalIdRef.current);
       intervalIdRef.current = null;
-    }
-
-    // Only start interval after initial fetch is done
-    if (!initialFetchDone) {
-      // Still return cleanup function even if not starting interval yet
-      return () => {
-        if (intervalIdRef.current) {
-          clearInterval(intervalIdRef.current);
-          intervalIdRef.current = null;
-        }
-      };
     }
 
     // Start new interval with current intervalAllowed value
@@ -306,7 +306,7 @@ const FlagsProviderInner: FC<FlagsProviderProps> = ({
         intervalIdRef.current = null;
       }
     };
-  }, [intervalAllowed, initialFetchDone, enableLogs]);
+  }, [intervalAllowed, enableLogs]);
 
   const toggleFlag = useCallback((flagName: string) => {
     setLocalOverrides(prevOverrides => {
