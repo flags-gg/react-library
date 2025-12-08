@@ -85,6 +85,6 @@
     "@swc/helpers": "^0.5.17",
     "fast-equals": "^5.3.3",
     "jotai": "^2.15.2",
-    "lucide-react": "^0.555.0"
+    "lucide-react": "^0.556.0"
   }
 }
