@@ -84,7 +84,7 @@
   "dependencies": {
     "@swc/helpers": "^0.5.17",
     "fast-equals": "^6.0.0",
-    "jotai": "^2.16.0",
+    "jotai": "^2.16.1",
     "lucide-react": "^0.562.0"
   }
 }
