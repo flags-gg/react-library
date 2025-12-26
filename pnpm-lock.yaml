@@ -67,8 +67,8 @@ importers:
         specifier: ^30.2.0
         version: 30.2.0(@babel/core@7.28.5)
       bunchee:
-        specifier: ^6.7.0
-        version: 6.7.0(typescript@5.9.3)
+        specifier: ^6.8.0
+        version: 6.8.0(typescript@5.9.3)
       eslint:
         specifier: ^9.39.2
         version: 9.39.2
@@ -1657,8 +1657,8 @@ packages:
   buffer-from@1.1.2:
     resolution: {integrity: sha512-E+XQCRwSbaaiChtv6k6Dwgc+bx+Bs6vuKJHHl5kox/BaKbhiXzqQOwK4cO22yElGp2OCmjwVhT3HmxgyPGnJfQ==}
 
-  bunchee@6.7.0:
-    resolution: {integrity: sha512-tCTSm4okjArE/0FiuLUi5ITqNLlH6Ak2i+2sRxkBGt2PcuXYCvKwKV1zI3oQuvSNnItn3860O0S/sLnP7eIwpg==}
+  bunchee@6.8.0:
+    resolution: {integrity: sha512-FKy9k7zWuluTsauADBv9iyyGPIYrWUCaP8Y0Vx2blgVL6bl/HRwEMEMiXFQSuk3TZF2CIGotv4+/mXQFwfSaAw==}
     engines: {node: '>= 18.0.0'}
     hasBin: true
     peerDependencies:
@@ -5265,7 +5265,7 @@ snapshots:
 
   buffer-from@1.1.2: {}
 
-  bunchee@6.7.0(typescript@5.9.3):
+  bunchee@6.8.0(typescript@5.9.3):
     dependencies:
       '@rollup/plugin-commonjs': 29.0.0(rollup@4.54.0)
       '@rollup/plugin-json': 6.1.0(rollup@4.54.0)
