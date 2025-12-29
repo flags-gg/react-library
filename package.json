@@ -65,7 +65,7 @@
     "@types/react-dom": "^19.2.3",
     "@typescript-eslint/eslint-plugin": "^8.50.1",
     "babel-jest": "^30.2.0",
-    "bunchee": "^6.8.0",
+    "bunchee": "^6.8.2",
     "eslint": "^9.39.2",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-compiler": "19.0.0-beta-714736e-20250131",
