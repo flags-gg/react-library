@@ -60,10 +60,10 @@
     "@testing-library/react": "^16.3.1",
     "@types/jest": "^30.0.0",
     "@types/mocha": "^10.0.10",
-    "@types/node": "^25.0.7",
+    "@types/node": "^25.0.9",
     "@types/react": "^19.2.8",
     "@types/react-dom": "^19.2.3",
-    "@typescript-eslint/eslint-plugin": "^8.52.0",
+    "@typescript-eslint/eslint-plugin": "^8.53.0",
     "babel-jest": "^30.2.0",
     "bunchee": "^6.9.3",
     "eslint": "^9.39.2",
@@ -84,7 +84,7 @@
   "dependencies": {
     "@swc/helpers": "^0.5.18",
     "fast-equals": "^6.0.0",
-    "jotai": "^2.16.1",
+    "jotai": "^2.16.2",
     "lucide-react": "^0.562.0"
   }
 }
