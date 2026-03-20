@@ -75,7 +75,7 @@
     "jest": "^30.3.0",
     "jest-environment-jsdom": "^30.3.0",
     "jest-fetch-mock": "^3.0.3",
-    "jsdom": "^27.4.0",
+    "jsdom": "^29.0.1",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
     "typescript": "^5.9.3",
