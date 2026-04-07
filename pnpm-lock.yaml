@@ -82,8 +82,8 @@ importers:
         specifier: link:@testing-library/jest-dom/extend-expect
         version: link:@testing-library/jest-dom/extend-expect
       globals:
-        specifier: ^17.0.0
-        version: 17.0.0
+        specifier: ^17.4.0
+        version: 17.4.0
       identity-obj-proxy:
         specifier: ^3.0.0
         version: 3.0.0
@@ -2266,8 +2266,8 @@ packages:
     resolution: {integrity: sha512-oahGvuMGQlPw/ivIYBjVSrWAfWLBeku5tpPE2fOPLi+WHffIWbuh2tCjhyQhTBPMf5E9jDEH4FOmTYgYwbKwtQ==}
     engines: {node: '>=18'}
 
-  globals@17.0.0:
-    resolution: {integrity: sha512-gv5BeD2EssA793rlFWVPMMCqefTlpusw6/2TbAVMy0FzcG8wKJn4O+NqJ4+XWmmwrayJgw5TzrmWjFgmz1XPqw==}
+  globals@17.4.0:
+    resolution: {integrity: sha512-hjrNztw/VajQwOLsMNT1cbJiH2muO3OROCHnbehc8eY5JyD2gqz4AcMHPqgaOR59DjgUjYAYLeH699g/eWi2jw==}
     engines: {node: '>=18'}
 
   globalthis@1.0.4:
@@ -6168,7 +6168,7 @@ snapshots:
 
   globals@14.0.0: {}
 
-  globals@17.0.0: {}
+  globals@17.4.0: {}
 
   globalthis@1.0.4:
     dependencies:
