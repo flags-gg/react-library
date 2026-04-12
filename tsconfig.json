@@ -12,16 +12,19 @@
     "esModuleInterop": true,
 
     /* Output options */
+    "rootDir": "./src",
     "outDir": "./dist",
     "declaration": true,
     "declarationDir": "./dist",
 
     /* Bundler mode */
     "moduleResolution": "node",
+    "ignoreDeprecations": "6.0",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": false,
     "jsx": "react-jsx",
+    "types": ["node", "jest"],
 
     /* Linting */
     "strict": true,
