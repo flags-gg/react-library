@@ -78,7 +78,7 @@
     "jsdom": "^29.0.2",
     "react": "^19.2.5",
     "react-dom": "19.2.5",
-    "typescript": "^5.9.3",
+    "typescript": "^6.0.2",
     "typescript-eslint": "^8.58.1"
   },
   "dependencies": {
