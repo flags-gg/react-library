@@ -356,14 +356,24 @@ const FlagsProviderInner: FC<FlagsProviderProps> = ({
       <FlagsContext.Provider value={effectiveFlags}>
         {children}
         {secretMenu?.length >= 1 && (
-          <SecretMenu
-            secretMenu={secretMenu}
-            flags={effectiveFlags}
-            toggleFlag={toggleFlag}
-            secretMenuStyles={secretMenuStyles}
-            resetFlags={resetFlags}
-            isFlag={isFlag}
-          />
+          <ErrorBoundary
+            fallback={
+              <div>Feature flags system encountered an error. Using default values.</div>
+            }
+            onError={(error, errorInfo) => {
+              console.error("FlagsProvider SecretMenu Error:", error, errorInfo);
+            }}
+            isolate
+          >
+            <SecretMenu
+              secretMenu={secretMenu}
+              flags={effectiveFlags}
+              toggleFlag={toggleFlag}
+              secretMenuStyles={secretMenuStyles}
+              resetFlags={resetFlags}
+              isFlag={isFlag}
+            />
+          </ErrorBoundary>
         )}
       </FlagsContext.Provider>
     </SetFlagsContext.Provider>
@@ -371,18 +381,7 @@ const FlagsProviderInner: FC<FlagsProviderProps> = ({
 };
 
 export const FlagsProvider: FC<FlagsProviderProps> = (props) => {
-  return (
-    <ErrorBoundary 
-      fallback={
-        <div>Feature flags system encountered an error. Using default values.</div>
-      }
-      onError={(error, errorInfo) => {
-        console.error('FlagsProvider Error:', error, errorInfo);
-      }}
-    >
-      <FlagsProviderInner {...props} />
-    </ErrorBoundary>
-  );
+  return <FlagsProviderInner {...props} />;
 };
 
 export const useFlags = () => {
