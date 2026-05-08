@@ -73,7 +73,7 @@
     "globals": "^17.6.0",
     "identity-obj-proxy": "^3.0.0",
     "jest": "^30.3.0",
-    "jest-environment-jsdom": "^30.3.0",
+    "jest-environment-jsdom": "^30.4.1",
     "jest-fetch-mock": "^3.0.3",
     "jsdom": "^29.1.1",
     "react": "^19.2.5",
