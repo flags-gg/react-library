@@ -82,7 +82,7 @@
     "typescript-eslint": "^8.60.0"
   },
   "dependencies": {
-    "@swc/helpers": "^0.5.21",
+    "@swc/helpers": "^0.5.22",
     "fast-equals": "^6.0.0",
     "jotai": "^2.20.0",
     "lucide-react": "^1.16.0"
