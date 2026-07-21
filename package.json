@@ -79,7 +79,7 @@
     "react": "^19.2.5",
     "react-dom": "19.2.5",
     "typescript": "^6.0.3",
-    "typescript-eslint": "^8.64.0"
+    "typescript-eslint": "^8.65.0"
   },
   "dependencies": {
     "@swc/helpers": "^0.5.23",
