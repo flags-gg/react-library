@@ -14,7 +14,7 @@ jobs:
       id-token: write
       contents: read
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           persist-credentials: false
           fetch-depth: 1
@@ -30,9 +30,9 @@ jobs:
         with:
           node-version: "24.x" # npm >= 11.5.1 for trusted publishing (OIDC)
           registry-url: "https://registry.npmjs.org"
-      - uses: pnpm/action-setup@a3252b78c470c02df07e9d59298aecedc3ccdd6d # v3
+      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5
         with:
-          version: 9
+          version: 10
       - run: pnpm install --frozen-lockfile --ignore-scripts
       - name: Rollup
         run: pnpm run build

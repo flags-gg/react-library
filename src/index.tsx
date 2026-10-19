@@ -24,7 +24,6 @@ import { SecretMenu } from "./secretmenu";
 import {Cache} from "./cache";
 import { useAtom } from "jotai";
 import { atomWithStorage, RESET } from "jotai/utils";
-import { ErrorBoundary } from "./ErrorBoundary";
 
 const defaultFlags: Flags = {
   dummyFlag: {
@@ -409,18 +408,7 @@ const FlagsProviderInner: FC<FlagsProviderProps> = ({
 };
 
 export const FlagsProvider: FC<FlagsProviderProps> = (props) => {
-  return (
-    <ErrorBoundary 
-      fallback={
-        <div>Feature flags system encountered an error. Using default values.</div>
-      }
-      onError={(error, errorInfo) => {
-        console.error('FlagsProvider Error:', error, errorInfo);
-      }}
-    >
-      <FlagsProviderInner {...props} />
-    </ErrorBoundary>
-  );
+  return <FlagsProviderInner {...props} />;
 };
 
 export const useFlags = () => {
