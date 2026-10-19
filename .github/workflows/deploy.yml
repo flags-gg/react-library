@@ -10,8 +10,11 @@ jobs:
   npm:
     runs-on: ubuntu-latest
     environment: production
+    permissions:
+      id-token: write
+      contents: read
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           persist-credentials: false
           fetch-depth: 1
@@ -22,18 +25,17 @@ jobs:
 #        with:
 #          git-tag-version: false
 #          version: ${{ steps.extract_tag.outputs.tag }}
-      - uses: keloran/version-bump@main
-      - uses: actions/setup-node@v4
+      - uses: keloran/version-bump@c25548abe32c78adac98a4786e821cf3cf0990d2 # main
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
-          node-version: "20.x"
+          node-version: "24.x" # npm >= 11.5.1 for trusted publishing (OIDC)
           registry-url: "https://registry.npmjs.org"
-      - uses: pnpm/action-setup@v3
+      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5
         with:
-          version: 9
-      - run: pnpm install --frozen-lockfile
+          version: 10
+      - run: pnpm install --frozen-lockfile --ignore-scripts
       - name: Rollup
         run: pnpm run build
       - name: NPM
+        # trusted publishing: npm exchanges the OIDC token, provenance is automatic
         run: npm publish --no-git-checks
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
