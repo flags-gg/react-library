@@ -169,9 +169,16 @@ const SecretMenuInner: FC<SecretMenuProps> = ({
   useEffect(() => {
     const ac = new AbortController()
     const keyHandler = (event: KeyboardEvent) => {
+      if (secretMenu.length === 0) {
+        return;
+      }
+      // Don't hijack typing in form fields / editable content
+      if (event.target instanceof Element && event.target.closest('input, textarea, select, [contenteditable]:not([contenteditable="false"])')) {
+        return;
+      }
       try {
         setKeySequence((seq) => {
-          const newSeq = [...seq.slice(-(secretMenu.length - 1)), event.key]
+          const newSeq = [...seq, event.key].slice(-secretMenu.length)
           setShowMenu(isSequence(newSeq))
           return newSeq
         });

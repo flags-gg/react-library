@@ -357,4 +357,47 @@ describe('SecretMenu', () => {
       consoleSpy.mockRestore();
     });
   });
+
+  describe('Sequence detection', () => {
+    it('should detect a 1-key sequence after other keys', () => {
+      render(<SecretMenu {...defaultProps} secretMenu={['x']} />);
+
+      fireEvent.keyDown(document, { key: 'a' });
+      fireEvent.keyDown(document, { key: 'b' });
+      expect(screen.queryByText('Secret Menu')).not.toBeInTheDocument();
+
+      fireEvent.keyDown(document, { key: 'x' });
+      expect(screen.getByText('Secret Menu')).toBeInTheDocument();
+    });
+
+    it('should detect a multi-key sequence after unrelated keys', () => {
+      render(<SecretMenu {...defaultProps} />);
+
+      ['a', 'b', 'ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown'].forEach((key) =>
+        fireEvent.keyDown(document, { key })
+      );
+
+      expect(screen.getByText('Secret Menu')).toBeInTheDocument();
+    });
+
+    it('should ignore keys typed into inputs, textareas, selects and contenteditable', () => {
+      render(
+        <div>
+          <input data-testid="input" />
+          <textarea data-testid="textarea" />
+          <select data-testid="select" />
+          <div data-testid="editable" contentEditable suppressContentEditableWarning><span data-testid="inner">x</span></div>
+          <SecretMenu {...defaultProps} secretMenu={['x']} />
+        </div>
+      );
+
+      ['input', 'textarea', 'select', 'editable', 'inner'].forEach((id) => {
+        fireEvent.keyDown(screen.getByTestId(id), { key: 'x' });
+        expect(screen.queryByText('Secret Menu')).not.toBeInTheDocument();
+      });
+
+      fireEvent.keyDown(document.body, { key: 'x' });
+      expect(screen.getByText('Secret Menu')).toBeInTheDocument();
+    });
+  });
 });
