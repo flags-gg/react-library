@@ -81,7 +81,7 @@ pnpm build
 3. **State Management**
    - React Context for global distribution
    - Jotai atoms for persistent overrides
-   - Local storage key: "flagsgg:overrides"
+   - Local storage key: "flagsgg:overrides:<projectId>:<agentId>:<environmentId>" (overrides only apply while the server sends a secret menu, and are cleared when it stops)
 
 ## Important Notes
 

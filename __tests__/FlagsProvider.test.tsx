@@ -259,7 +259,7 @@ describe('FlagsProvider', () => {
       jest.useFakeTimers();
       setupFetchMock({
         ...mockServerResponse,
-        intervalAllowed: 5, // 5 seconds
+        intervalAllowed: 10, // 10 seconds
       });
 
       render(
@@ -268,23 +268,24 @@ describe('FlagsProvider', () => {
         </FlagsProvider>
       );
 
-      // Wait for initial fetch
+      // Wait for initial fetch to be applied (interval reconfigured to 10s)
       await waitFor(() => {
-        expect(global.fetch).toHaveBeenCalledTimes(1);
+        expect(screen.getByText('Feature A: enabled')).toBeInTheDocument();
       });
+      expect(global.fetch).toHaveBeenCalledTimes(1);
 
-      // Advance time by 5 seconds
+      // Advance time by 10 seconds
       act(() => {
-        jest.advanceTimersByTime(5000);
+        jest.advanceTimersByTime(10000);
       });
 
       await waitFor(() => {
         expect(global.fetch).toHaveBeenCalledTimes(2);
       });
 
-      // Advance time by another 5 seconds
+      // Advance time by another 10 seconds
       act(() => {
-        jest.advanceTimersByTime(5000);
+        jest.advanceTimersByTime(10000);
       });
 
       await waitFor(() => {
