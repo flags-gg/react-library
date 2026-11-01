@@ -25,4 +25,3 @@ keycloak.secret
 .commit_hash
 .latest_tag
 dist/
-pnpm-workspace.yaml
