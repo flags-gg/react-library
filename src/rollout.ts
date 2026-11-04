@@ -16,6 +16,14 @@ export const inRollout = (flagName: string, targetingKey: string | undefined, ro
   return bucket(flagName, targetingKey) < rollout;
 };
 
+// The user, as the server's targeting rules see it: base64 of UTF-8 JSON, with the targeting key as "key".
+export const encodeContext = (targetingKey: string | undefined, context: Record<string, string | string[]> | undefined): string => {
+  const json = JSON.stringify({ ...context, ...(targetingKey && { key: targetingKey }) });
+  let binary = "";
+  for (const byte of new TextEncoder().encode(json)) binary += String.fromCharCode(byte);
+  return btoa(binary);
+};
+
 const VISITOR_KEY = "flagsgg:visitor";
 
 // A stable anonymous id per browser, so "percentage of visitors" works without a user id.

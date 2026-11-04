@@ -360,6 +360,7 @@ describe('FlagsProvider', () => {
       expect(screen.getByText('Feature A: disabled')).toBeInTheDocument();
       const headers = (global.fetch as jest.Mock).mock.calls[0][1].headers;
       expect(headers.get('x-flags-capabilities')).toBe('rollout');
+      expect(JSON.parse(atob(headers.get('x-flags-context'))).key).toBe('user-1');
     });
 
     it('lets a visitor in when their bucket is under the rollout', async () => {

@@ -31,6 +31,8 @@ export interface FlagsProviderOptions {
   enableLogs?: boolean;
   // identifies the user for percentage rollouts (e.g. user id); defaults to a stable per-browser visitor id
   targetingKey?: string;
+  // attributes for targeting rules, e.g. { email: "ana@acme.com", groups: ["beta"] }; evaluated by the server
+  context?: Record<string, string | string[]>;
 }
 
 export interface FlagsProviderProps {

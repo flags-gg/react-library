@@ -1,4 +1,4 @@
-import { bucket, inRollout, visitorId } from "../src/rollout";
+import { bucket, encodeContext, inRollout, visitorId } from "../src/rollout";
 
 // Same vectors as the API (orchestrator internal/flags/rollout_test.go); they must never drift.
 const vectors: [string, string, number][] = [
@@ -27,5 +27,10 @@ describe("rollout", () => {
     const first = visitorId();
     expect(first).toBeTruthy();
     expect(visitorId()).toBe(first);
+  });
+
+  it("encodes the user for the server's targeting rules", () => {
+    const decoded = JSON.parse(Buffer.from(encodeContext("u-1", { email: "ana@acme.com", groups: ["beta", "ünï"] }), "base64").toString("utf8"));
+    expect(decoded).toEqual({ email: "ana@acme.com", groups: ["beta", "ünï"], key: "u-1" });
   });
 });
