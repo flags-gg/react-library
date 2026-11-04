@@ -40,6 +40,9 @@ module.exports = {
     '^.+\\.(js|jsx|ts|tsx)$': 'babel-jest'
   },
 
+  // jotai 3 ships ESM only, so it has to go through babel-jest too
+  transformIgnorePatterns: ['/node_modules/(?!\\.pnpm/jotai@[^/]+/node_modules/jotai/|jotai/)'],
+
   // Verbose output for tests
   verbose: true,
   

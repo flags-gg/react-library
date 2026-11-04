@@ -336,4 +336,44 @@ describe('FlagsProvider', () => {
   describe('Local overrides', () => {
   });
 
+
+  describe('Percentage rollout', () => {
+    const rolloutResponse = {
+      intervalAllowed: 60,
+      secretMenu: { sequence: [], styles: [] },
+      // bucket("featureA", "user-1") decides featureA; featureB is a full rollout
+      flags: [
+        { enabled: true, rollout: 0, details: { name: 'featureA', id: '1' } },
+        { enabled: true, details: { name: 'featureB', id: '2' } },
+      ],
+    };
+
+    it('declares the rollout capability and resolves rollouts per targeting key', async () => {
+      setupFetchMock(rolloutResponse);
+      render(
+        <FlagsProvider options={{ projectId: 'p', targetingKey: 'user-1' }}>
+          <TestComponent />
+        </FlagsProvider>
+      );
+
+      await waitFor(() => expect(screen.getByText('Feature B: enabled')).toBeInTheDocument());
+      expect(screen.getByText('Feature A: disabled')).toBeInTheDocument();
+      const headers = (global.fetch as jest.Mock).mock.calls[0][1].headers;
+      expect(headers.get('x-flags-capabilities')).toBe('rollout');
+      expect(JSON.parse(atob(headers.get('x-flags-context'))).key).toBe('user-1');
+    });
+
+    it('lets a visitor in when their bucket is under the rollout', async () => {
+      setupFetchMock({ ...rolloutResponse, flags: [{ enabled: true, rollout: 64, details: { name: 'featureA', id: '1' } }] });
+      // bucket("featureA", key) for this key is below 64 (asserted via the shared bucket function)
+      const { bucket } = await import('../src/rollout');
+      const key = ['a', 'b', 'c', 'd', 'e', 'f'].map(k => `user-${k}`).find(k => bucket('featureA', k) < 64)!;
+      render(
+        <FlagsProvider options={{ projectId: 'p', targetingKey: key }}>
+          <TestComponent />
+        </FlagsProvider>
+      );
+      await waitFor(() => expect(screen.getByText('Feature A: enabled')).toBeInTheDocument());
+    });
+  });
 });
