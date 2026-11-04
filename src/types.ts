@@ -15,6 +15,8 @@ export interface Flag {
     name: string;
     id: string
   }
+  // percentage of visitors that see the flag when enabled; absent means 100
+  rollout?: number;
 }
 export interface Flags {
   [key: string]: Flag;
@@ -27,6 +29,8 @@ export interface FlagsProviderOptions {
 
   flagsURL?: string;
   enableLogs?: boolean;
+  // identifies the user for percentage rollouts (e.g. user id); defaults to a stable per-browser visitor id
+  targetingKey?: string;
 }
 
 export interface FlagsProviderProps {

@@ -22,6 +22,7 @@ import {
 } from "./types";
 import { SecretMenu } from "./secretmenu";
 import {Cache} from "./cache";
+import { inRollout, visitorId } from "./rollout";
 import { useAtom } from "jotai";
 import { atomWithStorage, RESET } from "jotai/utils";
 
@@ -102,7 +103,9 @@ const FlagsProviderInner: FC<FlagsProviderProps> = ({
     agentId,
     environmentId,
     enableLogs,
+    targetingKey: optionTargetingKey,
   } = options;
+  const targetingKey = useMemo(() => optionTargetingKey || visitorId(), [optionTargetingKey]);
   const flagsURL = useMemo(() => safeFlagsURL(rawFlagsURL), [rawFlagsURL]);
   // Overrides are namespaced per project/agent/environment
   const overridesKey = `flagsgg:overrides:${projectId ?? ""}:${agentId ?? ""}:${environmentId ?? ""}`;
@@ -120,13 +123,14 @@ const FlagsProviderInner: FC<FlagsProviderProps> = ({
   const fetchFlagsRef = useRef<() => Promise<void>>(async () => {})
 
   const fetchFlags = useCallback(async () => {
-    const cacheKey = `flags_${projectId}_${agentId}_${environmentId}`;
+    const cacheKey = `flags_${projectId}_${agentId}_${environmentId}_${targetingKey ?? ""}`;
 
     const headers = new Headers({
       "Content-Type": "application/json",
       ...(projectId && { "x-project-id": projectId }),
       ...(agentId && { "x-agent-id": agentId }),
       ...(environmentId && { "x-environment-id": environmentId }),
+      "x-flags-capabilities": "rollout",
     });
 
     if (!agentId && !projectId && !environmentId) {
@@ -223,9 +227,11 @@ const FlagsProviderInner: FC<FlagsProviderProps> = ({
       
       const newFlags = Array.isArray(data.flags) ? data.flags.reduce((acc: Flags, flag: Flag) => {
         if (flag && flag.details && flag.details.name) {
+          // resolve the rollout once, so everything downstream just sees enabled
+          const enabled = flag.enabled === true && inRollout(flag.details.name, targetingKey, flag.rollout);
           return {
             ...acc,
-            [flag.details.name]: flag,
+            [flag.details.name]: { ...flag, enabled },
           };
         }
         return acc;
@@ -277,7 +283,7 @@ const FlagsProviderInner: FC<FlagsProviderProps> = ({
         }
       }
     }
-  }, [flagsURL, agentId, projectId, environmentId, enableLogs, cache, flags, setLocalOverrides, setFlags]);
+  }, [flagsURL, agentId, projectId, environmentId, enableLogs, cache, flags, setLocalOverrides, setFlags, targetingKey]);
 
   // Keep a stable ref to the latest fetchFlags to avoid effect re-creations
   useEffect(() => {
